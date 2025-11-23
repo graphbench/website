@@ -1618,3 +1618,36 @@ footer { border-top: 1px solid var(--border); padding: 1rem 0; color: var(--text
   .side { position: static; max-height: none; }
 }
 
+
+@media (max-width: 719px) {
+  .ds-slide .wf-right,
+  .ds-slide .ar-right,
+  .ds-slide .col-6[id^="ds-side-"] {
+    display: none !important;
+  }
+  
+  .ds-slide .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - var(--header-h) - 120px);
+  }
+  
+  .ds-slide > .container > .grid {
+    align-items: center;
+  }
+  
+  .ds-slide .prose {
+    margin-bottom: 4rem;
+  }
+  
+  .ds-slide .col-6 > .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    margin-top: 1.5rem;
+  }
+  
+  .ds-slide .col-6 > .grid > .col-6 {
+    grid-column: span 1 !important;
+  }
+}
+
