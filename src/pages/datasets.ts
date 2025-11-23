@@ -1,9 +1,6 @@
 import '../style.css'
 import { initWeatherGlobe } from '../features/weather/globe'
 import { renderLayout, enhanceInteractions } from '../shared/layout'
-import { initArGraphVisualizer } from '../features/ar/visualizer'
-import { initCoGraphVisualizer } from '../features/co/visualizer'
-import { initSocialNetworkVisualizer } from '../features/social/visualizer'
 
 type Ds = { id: string; name: string; group: number; regimes: string[] }
 const items: Ds[] = [
