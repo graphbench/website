@@ -43,7 +43,7 @@ export function renderLayout(active: PageKey, mainHtml: string, mainClass?: stri
   <header id="site-header" class="${active !== 'home' ? 'header-elevated' : 'header-on-hero'}">
     <div class="container nav" role="navigation" aria-label="Primary">
       <a href="./" class="brand" aria-label="GraphBench home">
-        <img src="./GraphBench_text.svg" alt="GraphBench" />
+        <img src="./Graphbench_logo_new_text.png" alt="GraphBench" />
       </a>
       <button type="button" class="nav-toggle" data-nav-toggle aria-controls="nav-drawer" aria-expanded="false" aria-label="Toggle navigation">
         <span class="nav-toggle-bar"></span>
@@ -60,7 +60,7 @@ export function renderLayout(active: PageKey, mainHtml: string, mainClass?: stri
     <div class="nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Site navigation">
       <div class="nav-drawer-header">
         <a href="./" class="brand nav-drawer-brand" aria-label="GraphBench home">
-          <img src="./GraphBench_text.svg" alt="GraphBench" />
+          <img src="./Graphbench_logo_new_text.png" alt="GraphBench" />
         </a>
         <button type="button" class="nav-drawer-close" data-nav-close aria-label="Close navigation">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

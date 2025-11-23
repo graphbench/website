@@ -36,7 +36,7 @@ app.innerHTML = renderLayout('team', `
         { name: 'Mathias Niepert', image: 'mathias_niepert.png', institution: 'University of Stuttgart', domains: [{ label: 'Advisor', colorClass: 'team-domain-senior' }] },
         { name: 'Bryan Perozzi', image: 'bryan_perozzi.png', institution: 'Google Research', domains: [{ label: 'Advisor', colorClass: 'team-domain-senior' }] },
         { name: 'Jan Tönshoff', image: 'jan_tonshoff.png', institution: 'Microsoft Research', domains: [{ label: 'Advisor', colorClass: 'team-domain-senior' }] },
-        { name: 'Christopher Morris', image: 'christopher_morris.png', institution: 'RWTH Aachen University', domains: [{ label: 'Advisor', colorClass: 'team-domain-senior' }] }
+        { name: 'Christopher Morris', image: 'christopher_morris.png', institution: 'RWTH Aachen University', domains: [{ label: 'Main Advisor', colorClass: 'team-domain-senior' }] }
       ].map(member => `
       <div class="team-item">
         <div class="team-avatar">

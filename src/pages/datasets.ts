@@ -158,7 +158,7 @@ const dsSlide = (r: Ds, idx: number, total: number): string => {
             </div>
           </div>
         </div>
-        <div class="col-6 ${r.id === 'weather' ? 'wf-right' : (r.id === 'ar' ? 'ar-right' : (r.id === 'co' ? 'ar-right' : (r.id === 'social' ? 'ar-right' : '')))}" id="ds-side-${r.id}"></div>
+        <div class="col-6 ${r.id === 'weather' ? 'wf-right' : (r.id === 'ar' ? 'ar-right' : (r.id === 'co' ? 'ar-right' : (r.id === 'social' ? 'ar-right' : '')))}" id="ds-side-${r.id}"${r.id === 'social' || r.id === 'co' || r.id === 'ar' ? ' style="display: none;"' : ''}></div>
       </div>
       ${upBtn}
       <div class="arrow-caption arrow-caption-up">${prevName}</div>
@@ -290,28 +290,10 @@ document.querySelectorAll<HTMLButtonElement>('.arrow-btn[data-direction]').forEa
 enhanceInteractions()
 
 ;(function () {
-  const mount = document.getElementById('ds-side-social') as HTMLElement | null
-  if (!mount) return
-  try { initSocialNetworkVisualizer({ mountEl: mount }) } catch {}
-})()
-
-;(function () {
   const mount = document.getElementById('ds-side-weather') as HTMLElement | null
   if (!mount) return
   try { initWeatherGlobe({ mountEl: mount, skin: 'blue' }) } catch {}
 })()
-
-  ; (function () {
-    const mount = document.getElementById('ds-side-ar') as HTMLElement | null
-    if (!mount) return
-    try { initArGraphVisualizer({ mountEl: mount }) } catch { }
-  })()
-
-  ; (function () {
-    const mount = document.getElementById('ds-side-co') as HTMLElement | null
-    if (!mount) return
-    try { initCoGraphVisualizer({ mountEl: mount }) } catch { }
-  })()
 
   ; (function () {
     const blockWheel = (el: HTMLElement | null) => {
@@ -321,10 +303,7 @@ enhanceInteractions()
         e.preventDefault()
       }, { passive: false })
     }
-    blockWheel(document.getElementById('ds-side-social') as HTMLElement | null)
     blockWheel(document.getElementById('ds-side-weather') as HTMLElement | null)
-    blockWheel(document.getElementById('ds-side-ar') as HTMLElement | null)
-    blockWheel(document.getElementById('ds-side-co') as HTMLElement | null)
   })()
 
 ;(function () {

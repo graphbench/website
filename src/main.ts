@@ -3,7 +3,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <header>
     <div class="container nav">
       <a class="brand" href="./">
-        <img src="./GraphBench.svg" alt="GraphBench logo" />
+        <img src="./Graphbench_logo_new.png" alt="GraphBench logo" />
         <strong>GraphBench</strong>
         <span class="chip" aria-hidden="true"><span class="dot"></span>prototype</span>
       </a>
