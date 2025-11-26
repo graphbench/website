@@ -155,7 +155,7 @@ const dsSlide = (r: Ds, idx: number, total: number): string => {
             </div>
           </div>
         </div>
-        <div class="col-6 ${r.id === 'weather' ? 'wf-right' : (r.id === 'ar' ? 'ar-right' : (r.id === 'co' ? 'ar-right' : (r.id === 'social' ? 'ar-right' : '')))}" id="ds-side-${r.id}"${r.id === 'social' || r.id === 'co' || r.id === 'ar' ? ' style="display: none;"' : ''}></div>
+        <div class="col-6 ${r.id === 'weather' ? 'wf-right' : (r.id === 'ar' ? 'ar-right' : (r.id === 'co' ? 'ar-right' : (r.id === 'social' ? 'ar-right' : '')))}" id="ds-side-${r.id}"${r.id === 'social' || r.id === 'co' ? ' style="display: none;"' : ''}></div>
       </div>
       ${upBtn}
       <div class="arrow-caption arrow-caption-up">${prevName}</div>
@@ -290,6 +290,222 @@ enhanceInteractions()
   const mount = document.getElementById('ds-side-weather') as HTMLElement | null
   if (!mount) return
   try { initWeatherGlobe({ mountEl: mount, skin: 'blue' }) } catch {}
+})()
+
+;(function () {
+  const mount = document.getElementById('ds-side-ar') as HTMLElement | null
+  if (!mount) return
+  
+  mount.style.display = 'flex'
+  mount.style.flexDirection = 'column'
+  mount.style.alignItems = 'flex-start'
+  mount.style.justifyContent = 'center'
+  mount.style.gap = '1rem'
+  mount.style.paddingLeft = '6rem'
+  mount.style.paddingTop = '2rem'
+  
+  // Create text container
+  const textContainer = document.createElement('div')
+  textContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif'
+  textContainer.style.fontSize = '0.9rem'
+  textContainer.style.lineHeight = '1.7'
+  textContainer.style.color = 'var(--text-2)'
+  
+  const createSection = (title: string, description: string, dataField: string, dimensions: string) => {
+    const section = document.createElement('div')
+    section.style.marginBottom = '0.5rem'
+    
+    const titleEl = document.createElement('div')
+    titleEl.style.fontWeight = '600'
+    titleEl.style.color = 'var(--ds-g3)'
+    titleEl.style.marginBottom = '0.3rem'
+    titleEl.textContent = title
+    
+    const descEl = document.createElement('div')
+    descEl.style.marginBottom = '0.2rem'
+    descEl.innerHTML = description
+    
+    const dataEl = document.createElement('div')
+    dataEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dataEl.style.fontSize = '0.85rem'
+    dataEl.style.color = 'var(--text-2)'
+    dataEl.style.backgroundColor = 'var(--surface-1)'
+    dataEl.style.padding = '0.3rem 0.5rem'
+    dataEl.style.borderRadius = '4px'
+    dataEl.style.display = 'inline-block'
+    dataEl.style.marginRight = '0.5rem'
+    dataEl.textContent = dataField
+    
+    const dimLabel = document.createElement('span')
+    dimLabel.style.fontSize = '0.85rem'
+    dimLabel.style.color = 'var(--text-3)'
+    dimLabel.style.marginRight = '0.3rem'
+    dimLabel.textContent = 'Dimension: '
+    
+    const dimEl = document.createElement('span')
+    dimEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dimEl.style.fontSize = '0.85rem'
+    dimEl.style.color = 'var(--text-2)'
+    dimEl.style.backgroundColor = 'var(--surface-1)'
+    dimEl.style.padding = '0.3rem 0.5rem'
+    dimEl.style.borderRadius = '4px'
+    dimEl.style.display = 'inline-block'
+    dimEl.textContent = dimensions
+    
+    section.appendChild(titleEl)
+    section.appendChild(descEl)
+    const metaLine = document.createElement('div')
+    metaLine.appendChild(dataEl)
+    metaLine.appendChild(dimLabel)
+    metaLine.appendChild(dimEl)
+    section.appendChild(metaLine)
+    
+    return section
+  }
+  
+  const createTaskContent = (_taskType: string) => {
+    // For now, all tasks show the same content (Minimum Spanning Tree)
+    // This can be customized per task in the future
+    const container = document.createElement('div')
+    
+    const nodeSection = createSection(
+      'Node features',
+      'Weight in Minimum spanning tree',
+      'data.x',
+      '[num_nodes, 1]'
+    )
+    
+    const edgeSection = createSection(
+      'Edge features',
+      'Weight in Minimum spanning tree',
+      'data.edge_attr',
+      '[num_edges, 2]'
+    )
+    
+    const targetSection = createSection(
+      'Target',
+      'Classification of edges belonging to Minimum spanning tree',
+      'data.y',
+      '[num_edges, 1]'
+    )
+    
+    container.appendChild(nodeSection)
+    container.appendChild(edgeSection)
+    container.appendChild(targetSection)
+    
+    return container
+  }
+  
+  // Build custom dropdown
+  const buildDropdown = (id: string, options: { value: string; label: string }[], initial: string) => {
+    const wrap = document.createElement('div')
+    wrap.className = 'ar-sel'
+    wrap.style.transform = 'scale(0.9)'
+    wrap.style.transformOrigin = 'left center'
+    
+    const root = document.createElement('div')
+    root.className = 'ar-dd'
+    root.style.position = 'relative'
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'ar-dd-trigger'
+    btn.id = id
+    const menu = document.createElement('div')
+    menu.className = 'ar-dd-menu'
+    menu.setAttribute('role', 'listbox')
+    menu.setAttribute('tabindex', '-1')
+    // Override the bottom positioning to make it drop down instead of up
+    menu.style.position = 'absolute'
+    menu.style.top = 'calc(100% + 6px)'
+    menu.style.bottom = 'auto'
+    menu.style.left = '0'
+    menu.style.right = 'auto'
+    menu.style.minWidth = '180px'
+    menu.style.background = 'var(--surface-0)'
+    menu.style.border = '1px solid var(--border)'
+    menu.style.borderRadius = '.5rem'
+    menu.style.boxShadow = 'var(--shadow-2)'
+    menu.style.padding = '.3rem'
+    menu.style.display = 'none'
+    menu.style.zIndex = '10'
+    
+    let current = initial
+    const allOptions = options.slice()
+    const setBtnText = () => {
+      const cur = options.find(o => o.value === current) || options[0]
+      btn.textContent = cur.label
+    }
+    const closeMenu = () => { menu.style.display = 'none'; btn.setAttribute('aria-expanded', 'false') }
+    const openMenu = () => { menu.style.display = 'block'; btn.setAttribute('aria-expanded', 'true') }
+    const buildItems = (opts: { value: string; label: string }[]) => {
+      menu.innerHTML = ''
+      opts.forEach(opt => {
+        const item = document.createElement('div')
+        item.className = 'ar-dd-item'
+        item.setAttribute('role', 'option')
+        item.setAttribute('data-value', opt.value)
+        item.textContent = opt.label
+        if (opt.value === current) item.classList.add('selected')
+        item.addEventListener('click', (e) => {
+          e.preventDefault()
+          if (current !== opt.value) {
+            const prev = menu.querySelector('.ar-dd-item.selected') as HTMLElement | null
+            if (prev) prev.classList.remove('selected')
+            current = opt.value
+            item.classList.add('selected')
+            setBtnText()
+            listeners.forEach(cb => cb(current))
+          }
+          closeMenu()
+        })
+        menu.appendChild(item)
+      })
+    }
+    buildItems(allOptions)
+    setBtnText()
+    btn.setAttribute('aria-haspopup', 'listbox')
+    btn.setAttribute('aria-expanded', 'false')
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      if (menu.style.display === 'block') closeMenu(); else openMenu()
+    })
+    document.addEventListener('click', (e) => {
+      if (!wrap.contains(e.target as Node)) closeMenu()
+    })
+    root.appendChild(btn)
+    root.appendChild(menu)
+    wrap.appendChild(root)
+    const listeners: Array<(v: string) => void> = []
+    return {
+      wrap,
+      value: () => current,
+      onChange: (cb: (v: string) => void) => { listeners.push(cb) },
+    }
+  }
+  
+  const tasks = [
+    { value: 'minimum-spanning-tree', label: 'Minimum Spanning Tree' },
+    { value: 'maximum-clique', label: 'Maximum Clique' },
+    { value: 'topological-sort', label: 'Topological Sort' },
+    { value: 'maximum-flow', label: 'Maximum Flow' },
+    { value: 'bipartite-matching', label: 'Bipartite Matching' },
+    { value: 'bridge-finding', label: 'Bridge Finding' },
+    { value: 'steiner-tree', label: 'Steiner Tree' }
+  ]
+  
+  const dropdown = buildDropdown('ar-task-select', tasks, 'minimum-spanning-tree')
+  dropdown.onChange((value) => {
+    textContainer.innerHTML = ''
+    const newContent = createTaskContent(value)
+    textContainer.appendChild(newContent)
+  })
+  
+  // Append dropdown first (above), then text content
+  mount.appendChild(dropdown.wrap)
+  
+  const initialContent = createTaskContent('minimum-spanning-tree')
+  textContainer.appendChild(initialContent)
+  mount.appendChild(textContainer)
 })()
 
   ; (function () {
