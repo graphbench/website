@@ -1,4 +1,4 @@
-import{r as fD,e as dD}from"./layout-fX4PfxkW.js";/**
+import{r as fD,e as dD}from"./layout-vvNbaZvi.js";/**
  * @license
  * Copyright 2010-2025 Three.js Authors
  * SPDX-License-Identifier: MIT

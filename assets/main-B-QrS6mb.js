@@ -1,4 +1,4 @@
-import{r as R,e as F}from"./layout-fX4PfxkW.js";const O=document.querySelector("#app");O.innerHTML=R("home",`
+import{r as R,e as F}from"./layout-vvNbaZvi.js";const O=document.querySelector("#app");O.innerHTML=R("home",`
   <!-- Hero -->
   <section class="hero hero-primary home-hero">
     <div class="container hero-grid">
