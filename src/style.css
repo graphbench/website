@@ -76,7 +76,14 @@ body {
   background: #ffffff;
 }
 
-body.no-body-scroll { overflow: hidden; height: 100svh; }
+body.no-body-scroll {
+  overflow: hidden;
+  height: 100svh;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  overscroll-behavior: contain;
+}
 html, body { height: 100%; }
 html { overflow-x: hidden; scrollbar-gutter: auto; max-width: 100vw; background: #ffffff; }
 html.no-root-scroll { overflow: hidden; height: 100%; }

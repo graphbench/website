@@ -166,6 +166,10 @@ const dsSlide = (r: Ds, idx: number, total: number): string => {
 }
 
 const app = document.querySelector<HTMLDivElement>('#app')!
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual'
+}
+
 const slidesHtml = `
   <!-- Slide 0: Table + header -->
   <section class="snap-section section-white slide-top" style="background:#fff;">
@@ -223,13 +227,60 @@ const slidesHtml = `
 `
 app.innerHTML = renderLayout('datasets', slidesHtml, 'snap-container')
 
+const snapContainer = document.getElementById('main') as HTMLElement | null
+const blurActiveElement = () => {
+  const active = document.activeElement as HTMLElement | null
+  if (active && typeof active.blur === 'function') {
+    active.blur()
+  }
+}
+
+let rootScrollResetRaf: number | null = null
+const resetRootScroll = () => {
+  if (rootScrollResetRaf !== null) return
+  rootScrollResetRaf = requestAnimationFrame(() => {
+    rootScrollResetRaf = null
+    if (window.scrollY !== 0 || window.scrollX !== 0) {
+      window.scrollTo(0, 0)
+    }
+  })
+}
+
+if (snapContainer) {
+  window.addEventListener('scroll', resetRootScroll, { passive: true })
+  resetRootScroll()
+}
+
+const scrollSnapTo = (target: HTMLElement | null) => {
+  if (!target) return
+  blurActiveElement()
+  resetRootScroll()
+  if (!snapContainer) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    requestAnimationFrame(resetRootScroll)
+    window.setTimeout(resetRootScroll, 200)
+    return
+  }
+  const containerRect = snapContainer.getBoundingClientRect()
+  const targetRect = target.getBoundingClientRect()
+  const offsetTop = targetRect.top - containerRect.top + snapContainer.scrollTop
+  if (typeof snapContainer.scroll === 'function') {
+    snapContainer.scroll({ top: offsetTop, behavior: 'smooth' })
+  } else {
+    snapContainer.scrollTop = offsetTop
+  }
+  requestAnimationFrame(resetRootScroll)
+  window.setTimeout(resetRootScroll, 200)
+}
+
 // Avoid double scrollbars when snap container is active
 document.body.classList.add('no-body-scroll')
 document.documentElement.classList.add('no-root-scroll')
 
 const handleArrow = (btn: HTMLButtonElement) => {
   const direction = btn.getAttribute('data-direction') || 'down'
-  const container = document.getElementById('main') as HTMLElement
+  const container = snapContainer
+  if (!container) return
   const slides = Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[]
   const viewportTop = container.scrollTop
   const currentIndex = slides.reduce((best, el, idx) => {
@@ -238,7 +289,7 @@ const handleArrow = (btn: HTMLButtonElement) => {
     return dist < best.dist ? { idx, dist } : best
   }, { idx: 0, dist: Number.POSITIVE_INFINITY }).idx
   const nextIndex = direction === 'up' ? Math.max(0, currentIndex - 1) : Math.min(slides.length - 1, currentIndex + 1)
-  slides[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'start' })
+  scrollSnapTo(slides[nextIndex] || null)
 }
 
 document.querySelectorAll<HTMLButtonElement>('.arrow-btn[data-direction]').forEach(btn => {
@@ -246,7 +297,7 @@ document.querySelectorAll<HTMLButtonElement>('.arrow-btn[data-direction]').forEa
 })
 
   ; (function () {
-    const container = document.getElementById('main') as HTMLElement | null
+    const container = snapContainer
     if (!container) return
     let isLocked = false
     const navigate = (dir: 'up' | 'down') => {
@@ -268,7 +319,7 @@ document.querySelectorAll<HTMLButtonElement>('.arrow-btn[data-direction]').forEa
   })()
 
 ;(function () {
-  const container = document.getElementById('main') as HTMLElement | null
+  const container = snapContainer
   if (!container) return
   container.addEventListener('click', (e) => {
     const t = e.target as HTMLElement
@@ -276,13 +327,29 @@ document.querySelectorAll<HTMLButtonElement>('.arrow-btn[data-direction]').forEa
     const link = (t.closest && t.closest('a[data-dsid]')) as HTMLAnchorElement | null
     if (!link) return
     e.preventDefault()
+    link.blur()
     const dsid = link.getAttribute('data-dsid')
     if (!dsid) return
     const target = document.getElementById(`ds-${dsid}`) as HTMLElement | null
     if (!target) return
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    scrollSnapTo(target)
   })
 })()
+
+const scrollToHashTarget = () => {
+  const hash = window.location.hash
+  if (!hash || hash.length <= 1) return
+  const cleanHash = hash.slice(1)
+  if (!cleanHash.startsWith('ds-')) return
+  const target = document.getElementById(cleanHash)
+  if (!target) return
+  scrollSnapTo(target)
+}
+
+if (window.location.hash) {
+  window.setTimeout(scrollToHashTarget, 0)
+}
+window.addEventListener('hashchange', scrollToHashTarget)
 
 enhanceInteractions()
 
@@ -817,7 +884,7 @@ enhanceInteractions()
       }, HINT_DELAY)
     }
 
-    const container = document.getElementById('main') as HTMLElement | null
+    const container = snapContainer
     if (!container) return
 
     let currentSlide = 0
