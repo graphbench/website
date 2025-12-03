@@ -343,8 +343,6 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
     const selectedIds = new Set<string>()
     const selectedSubsets = Object.fromEntries(Object.keys(subsetsByDataset).map(id => [id, new Set<string>()])) as Record<string, Set<string>>
     const expandedIds = new Set<string>()
-    const customSplits = Object.fromEntries(Object.keys(subsetsByDataset).map(id => [id, {}])) as Record<string, Record<string, { train: number, valid: number, test: number }>>
-    const openSplitPanels = new Set<string>()
 
     const iconFor = (id: string): string => {
       switch (id) {
@@ -378,65 +376,15 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       const sel = selectedSubsets[dsId] || new Set<string>()
       const rows = subs.map(sub => {
         const checked = parentSelected && sel.has(sub) ? 'checked' : ''
-        const splitSlider = splitSliderMarkup(dsId, sub)
         const safeId = `sub_${dsId}_${sub}`.replace(/[^a-zA-Z0-9_-]/g, '-')
-        return `<div class="sub-row-container">
-          <div class="sub-row">
-            <input id="${safeId}" type="checkbox" data-sub-ds="${dsId}" data-sub="${sub}" ${checked}/>
-            <label class="sub-name" for="${safeId}">
-              <span class="sub-text">${sub}</span>
-              <button type="button" class="sub-plus-btn" data-sub-plus="${dsId}-${sub}" aria-label="Add custom options for ${sub}" title="Add options">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </button>
-              <div class="sub-options" data-sub-opts="${dsId}-${sub}" hidden>
-                <button class="sub-opt-row" data-action="add-mask" data-sub-ds="${dsId}" data-sub="${sub}">Add custom train/valid/test mask</button>
-                <!-- future options go here -->
-              </div>
-            </label>
-          </div>
-          ${splitSlider}
+        return `<div class="sub-row">
+          <input id="${safeId}" type="checkbox" data-sub-ds="${dsId}" data-sub="${sub}" ${checked}/>
+          <label class="sub-name" for="${safeId}">
+            <span class="sub-text">${sub}</span>
+          </label>
         </div>`
       }).join('')
       return `<div class="side-sub">${rows}</div>`
-    }
-
-    const splitSliderMarkup = (dsId: string, subId: string): string => {
-      const splitKey = `${dsId}-${subId}`
-      const currentSplit = customSplits[dsId]?.[subId] || { train: 80, valid: 10, test: 10 }
-      const isOpen = openSplitPanels.has(splitKey)
-
-      if (!isOpen) return ''
-
-      return `
-        <div class="split-panel" data-split-panel="${splitKey}">
-          <div class="split-header">Train/Valid/Test Mask
-            <button type="button" class="split-remove-btn" data-remove-split="${splitKey}" aria-label="Remove mask" title="Remove">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </button>
-          </div>
-          <div class="split-slider-container">
-            <div class="split-slider" data-split-key="${splitKey}">
-              <div class="split-track">
-                <div class="split-segment train" style="left: 0%; width: ${currentSplit.train}%"></div>
-                <div class="split-segment valid" style="left: ${currentSplit.train}%; width: ${currentSplit.valid}%"></div>
-                <div class="split-segment test" style="left: ${currentSplit.train + currentSplit.valid}%; width: ${currentSplit.test}%"></div>
-              </div>
-              <div class="split-handles">
-                <div class="split-handle" data-handle="p1" style="left: ${currentSplit.train}%"></div>
-                <div class="split-handle" data-handle="p2" style="left: ${currentSplit.train + currentSplit.valid}%"></div>
-              </div>
-            </div>
-            <div class="split-labels">
-              <span class="split-label train">Train: ${currentSplit.train}%</span>
-              <span class="split-label valid">Valid: ${currentSplit.valid}%</span>
-              <span class="split-label test">Test: ${currentSplit.test}%</span>
-            </div>
-          </div>
-        </div>
-      `
     }
 
     const render = () => {
@@ -512,27 +460,6 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       if (optPF) lines.push('pre_filter = ...  # optional: PyG pre-filter matrix')
       if (optPT) lines.push('pre_transform = ...  # optional: transform applied at load-time')
       if (optT) lines.push('transform = ...  # optional: transform applied at runtime')
-
-      const hasCustomSplits = names.some(name => {
-        const entry = Object.entries(subsetsByDataset).find(([_, subs]) => subs.includes(name))
-        if (!entry) return false
-        const [dsId] = entry
-        return dsId && customSplits[dsId]?.[name]
-      })
-
-      if (hasCustomSplits) {
-        lines.push('')
-        lines.push('# Custom train/valid/test splits')
-        names.forEach(name => {
-          const entry = Object.entries(subsetsByDataset).find(([_, subs]) => subs.includes(name))
-          if (!entry) return
-          const [dsId] = entry
-          if (dsId && customSplits[dsId]?.[name]) {
-            const split = customSplits[dsId][name]
-            lines.push(`split_${name.replace(/[^a-zA-Z0-9]/g, '_')} = (${split.train / 100}, ${split.valid / 100}, ${split.test / 100})  # ${name}`)
-          }
-        })
-      }
 
       lines.push('')
       if (useList) {
@@ -648,19 +575,6 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
     })
 
     mount.addEventListener('click', (e) => {
-      const plusEl = (e.target as HTMLElement).closest('[data-sub-plus]') as HTMLElement | null
-      if (plusEl) {
-        e.preventDefault()
-        e.stopPropagation()
-        const key = plusEl.getAttribute('data-sub-plus') || ''
-        if (key) {
-          mount.querySelectorAll<HTMLElement>('.sub-options').forEach(el => { el.hidden = true })
-          const pop = mount.querySelector(`[data-sub-opts="${key}"]`) as HTMLElement | null
-          if (pop) pop.hidden = false
-        }
-        return
-      }
-
       const btn = (e.target as HTMLElement).closest('button') as HTMLButtonElement | null
       if (!btn) return
       const mode = btn.getAttribute('data-mode') as 'standard' | 'custom' | null
@@ -712,114 +626,6 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         const tbtn = coll.querySelector('.head [data-coll-toggle]') as HTMLButtonElement | null
         if (tbtn) tbtn.setAttribute('aria-expanded', (!open).toString())
       }
-    })
-
-    mount.addEventListener('click', (e) => {
-      const opt = (e.target as HTMLElement).closest('.sub-opt-row') as HTMLButtonElement | null
-      if (!opt) return
-      const action = opt.getAttribute('data-action')
-      if (action === 'add-mask') {
-        const ds = opt.getAttribute('data-sub-ds') || ''
-        const sub = opt.getAttribute('data-sub') || ''
-        const key = `${ds}-${sub}`
-        openSplitPanels.add(key)
-        const pop = mount.querySelector(`[data-sub-opts="${key}"]`) as HTMLElement | null
-        if (pop) pop.hidden = true
-        render(); update()
-        return
-      }
-    })
-
-    mount.addEventListener('click', (e) => {
-      const rm = (e.target as HTMLElement).closest('[data-remove-split]') as HTMLElement | null
-      if (!rm) return
-      e.preventDefault()
-      const key = rm.getAttribute('data-remove-split') || ''
-      if (!key) return
-      const [dsId, subId] = key.split('-')
-      openSplitPanels.delete(key)
-      if (customSplits[dsId] && customSplits[dsId][subId]) {
-        delete customSplits[dsId][subId]
-      }
-      render(); update()
-    })
-
-    const updateSplitUI = (splitKey: string) => {
-      const [dsId, subId] = splitKey.split('-')
-      const current = customSplits[dsId]?.[subId]
-      if (!current) return
-      const root = document.querySelector(`.split-panel[data-split-panel="${splitKey}"]`) as HTMLElement | null
-      if (!root) return
-      const p1Val = current.train
-      const p2Val = current.train + current.valid
-      const trainSeg = root.querySelector('.split-segment.train') as HTMLElement | null
-      const validSeg = root.querySelector('.split-segment.valid') as HTMLElement | null
-      const testSeg = root.querySelector('.split-segment.test') as HTMLElement | null
-      if (trainSeg) { trainSeg.style.left = '0%'; trainSeg.style.width = `${current.train}%` }
-      if (validSeg) { validSeg.style.left = `${p1Val}%`; validSeg.style.width = `${current.valid}%` }
-      if (testSeg) { testSeg.style.left = `${p2Val}%`; testSeg.style.width = `${current.test}%` }
-      const h1 = root.querySelector('.split-handle[data-handle="p1"]') as HTMLElement | null
-      const h2 = root.querySelector('.split-handle[data-handle="p2"]') as HTMLElement | null
-      if (h1) h1.style.left = `${p1Val}%`
-      if (h2) h2.style.left = `${p2Val}%`
-      const labTrain = root.querySelector('.split-label.train') as HTMLElement | null
-      const labValid = root.querySelector('.split-label.valid') as HTMLElement | null
-      const labTest = root.querySelector('.split-label.test') as HTMLElement | null
-      if (labTrain) labTrain.textContent = `Train: ${current.train}%`
-      if (labValid) labValid.textContent = `Valid: ${current.valid}%`
-      if (labTest) labTest.textContent = `Test: ${current.test}%`
-    }
-
-    const handleSliderUpdate = (splitKey: string, handleType: 'p1' | 'p2', newPosition: number) => {
-      const [dsId, subId] = splitKey.split('-')
-      if (!customSplits[dsId]) customSplits[dsId] = {}
-      if (!customSplits[dsId][subId]) customSplits[dsId][subId] = { train: 80, valid: 10, test: 10 }
-
-      const current = customSplits[dsId][subId]
-      let p1 = current.train
-      let p2 = current.train + current.valid
-
-      const pos = Math.max(0, Math.min(100, Math.round(newPosition)))
-      if (handleType === 'p1') {
-        p1 = Math.max(0, Math.min(pos, p2))
-      } else {
-        p2 = Math.max(p1, Math.min(pos, 100))
-      }
-
-      const train = p1
-      const valid = Math.max(0, p2 - p1)
-      const test = Math.max(0, 100 - p2)
-      customSplits[dsId][subId] = { train, valid, test }
-      updateSplitUI(splitKey)
-      update()
-    }
-
-    mount.addEventListener('mousedown', (e) => {
-      const handle = (e.target as HTMLElement).closest('.split-handle') as HTMLElement | null
-      if (!handle) return
-
-      e.preventDefault()
-      const slider = handle.closest('.split-slider') as HTMLElement | null
-      if (!slider) return
-
-      const splitKey = slider.getAttribute('data-split-key') || ''
-      const handleType = handle.getAttribute('data-handle') as 'p1' | 'p2'
-      const sliderRect = slider.getBoundingClientRect()
-
-      const updatePosition = (clientX: number) => {
-        const x = clientX - sliderRect.left
-        const percentage = Math.max(0, Math.min(100, (x / sliderRect.width) * 100))
-        handleSliderUpdate(splitKey, handleType, percentage)
-      }
-
-      const onMouseMove = (e: MouseEvent) => updatePosition(e.clientX)
-      const onMouseUp = () => {
-        document.removeEventListener('mousemove', onMouseMove)
-        document.removeEventListener('mouseup', onMouseUp)
-      }
-
-      document.addEventListener('mousemove', onMouseMove)
-      document.addEventListener('mouseup', onMouseUp)
     })
 
     render(); update()

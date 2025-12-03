@@ -362,7 +362,7 @@ enhanceInteractions()
 ;(function () {
   const mount = document.getElementById('ds-side-ar') as HTMLElement | null
   if (!mount) return
-  
+
   mount.style.display = 'flex'
   mount.style.flexDirection = 'column'
   mount.style.alignItems = 'flex-start'
@@ -370,28 +370,27 @@ enhanceInteractions()
   mount.style.gap = '1rem'
   mount.style.paddingLeft = '6rem'
   mount.style.paddingTop = '2rem'
-  
-  // Create text container
+
   const textContainer = document.createElement('div')
   textContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif'
   textContainer.style.fontSize = '0.9rem'
   textContainer.style.lineHeight = '1.7'
   textContainer.style.color = 'var(--text-2)'
-  
+
   const createSection = (title: string, description: string, dataField: string, dimensions: string) => {
     const section = document.createElement('div')
     section.style.marginBottom = '0.5rem'
-    
+
     const titleEl = document.createElement('div')
     titleEl.style.fontWeight = '600'
     titleEl.style.color = 'var(--ds-g3)'
     titleEl.style.marginBottom = '0.3rem'
     titleEl.textContent = title
-    
+
     const descEl = document.createElement('div')
     descEl.style.marginBottom = '0.2rem'
     descEl.innerHTML = description
-    
+
     const dataEl = document.createElement('div')
     dataEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
     dataEl.style.fontSize = '0.85rem'
@@ -402,13 +401,13 @@ enhanceInteractions()
     dataEl.style.display = 'inline-block'
     dataEl.style.marginRight = '0.5rem'
     dataEl.textContent = dataField
-    
+
     const dimLabel = document.createElement('span')
     dimLabel.style.fontSize = '0.85rem'
     dimLabel.style.color = 'var(--text-3)'
     dimLabel.style.marginRight = '0.3rem'
     dimLabel.textContent = 'Dimension: '
-    
+
     const dimEl = document.createElement('span')
     dimEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
     dimEl.style.fontSize = '0.85rem'
@@ -418,7 +417,7 @@ enhanceInteractions()
     dimEl.style.borderRadius = '4px'
     dimEl.style.display = 'inline-block'
     dimEl.textContent = dimensions
-    
+
     section.appendChild(titleEl)
     section.appendChild(descEl)
     const metaLine = document.createElement('div')
@@ -426,50 +425,47 @@ enhanceInteractions()
     metaLine.appendChild(dimLabel)
     metaLine.appendChild(dimEl)
     section.appendChild(metaLine)
-    
+
     return section
   }
-  
+
   const createTaskContent = (_taskType: string) => {
-    // For now, all tasks show the same content (Minimum Spanning Tree)
-    // This can be customized per task in the future
     const container = document.createElement('div')
-    
+
     const nodeSection = createSection(
       'Node features',
       'Weight in Minimum spanning tree',
       'data.x',
       '[num_nodes, 1]'
     )
-    
+
     const edgeSection = createSection(
       'Edge features',
       'Weight in Minimum spanning tree',
       'data.edge_attr',
       '[num_edges, 2]'
     )
-    
+
     const targetSection = createSection(
       'Target',
       'Classification of edges belonging to Minimum spanning tree',
       'data.y',
       '[num_edges, 1]'
     )
-    
+
     container.appendChild(nodeSection)
     container.appendChild(edgeSection)
     container.appendChild(targetSection)
-    
+
     return container
   }
-  
-  // Build custom dropdown
+
   const buildDropdown = (id: string, options: { value: string; label: string }[], initial: string) => {
     const wrap = document.createElement('div')
     wrap.className = 'ar-sel'
     wrap.style.transform = 'scale(0.9)'
     wrap.style.transformOrigin = 'left center'
-    
+
     const root = document.createElement('div')
     root.className = 'ar-dd'
     root.style.position = 'relative'
@@ -481,7 +477,6 @@ enhanceInteractions()
     menu.className = 'ar-dd-menu'
     menu.setAttribute('role', 'listbox')
     menu.setAttribute('tabindex', '-1')
-    // Override the bottom positioning to make it drop down instead of up
     menu.style.position = 'absolute'
     menu.style.top = 'calc(100% + 6px)'
     menu.style.bottom = 'auto'
@@ -495,7 +490,7 @@ enhanceInteractions()
     menu.style.padding = '.3rem'
     menu.style.display = 'none'
     menu.style.zIndex = '10'
-    
+
     let current = initial
     const allOptions = options.slice()
     const setBtnText = () => {
@@ -549,7 +544,7 @@ enhanceInteractions()
       onChange: (cb: (v: string) => void) => { listeners.push(cb) },
     }
   }
-  
+
   const tasks = [
     { value: 'minimum-spanning-tree', label: 'Minimum Spanning Tree' },
     { value: 'maximum-clique', label: 'Maximum Clique' },
@@ -559,17 +554,16 @@ enhanceInteractions()
     { value: 'bridge-finding', label: 'Bridge Finding' },
     { value: 'steiner-tree', label: 'Steiner Tree' }
   ]
-  
+
   const dropdown = buildDropdown('ar-task-select', tasks, 'minimum-spanning-tree')
   dropdown.onChange((value) => {
     textContainer.innerHTML = ''
     const newContent = createTaskContent(value)
     textContainer.appendChild(newContent)
   })
-  
-  // Append dropdown first (above), then text content
+
   mount.appendChild(dropdown.wrap)
-  
+
   const initialContent = createTaskContent('minimum-spanning-tree')
   textContainer.appendChild(initialContent)
   mount.appendChild(textContainer)
