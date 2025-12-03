@@ -149,11 +149,40 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
 
   let baseWidth: number | null = null
   let baseHeight: number | null = null
+  const MEASURE_VW_WIDTH = 1200
+
+  const measureBaseRect = (): DOMRect | null => {
+    const cloneShell = document.createElement('div')
+    cloneShell.style.position = 'absolute'
+    cloneShell.style.left = '-99999px'
+    cloneShell.style.top = '-99999px'
+    cloneShell.style.visibility = 'hidden'
+    cloneShell.style.pointerEvents = 'none'
+    cloneShell.style.display = 'flex'
+    cloneShell.style.alignItems = 'center'
+    cloneShell.style.justifyContent = 'center'
+
+    const clone = wrap.cloneNode(true) as HTMLElement
+    clone.removeAttribute('id')
+    clone.querySelectorAll<HTMLElement>('[id]').forEach(el => el.removeAttribute('id'))
+    clone.style.width = 'auto'
+    clone.style.height = 'auto'
+    clone.style.transform = 'none'
+    clone.style.transformOrigin = 'top center'
+    clone.style.setProperty('--flow-vw', `${MEASURE_VW_WIDTH / 100}px`)
+
+    cloneShell.appendChild(clone)
+    document.body.appendChild(cloneShell)
+    const rect = clone.getBoundingClientRect()
+    document.body.removeChild(cloneShell)
+    if (!rect.width || !rect.height) return null
+    return rect
+  }
 
   const ensureBaseSize = () => {
     if (baseWidth !== null && baseHeight !== null) return
-    const rect = wrap.getBoundingClientRect()
-    if (!rect.width || !rect.height) return
+    const rect = measureBaseRect()
+    if (!rect) return
     baseWidth = rect.width
     baseHeight = rect.height
     wrap.style.width = `${baseWidth}px`
@@ -172,7 +201,7 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
 
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth || baseWidth
     let vwWidth = 66
-    if (viewportWidth <= 1000) vwWidth = 70
+    if (viewportWidth <= 1000) vwWidth = 76
     if (viewportWidth <= 650) vwWidth = 80
     if (viewportWidth <= 400) vwWidth = 90
     shell.style.width = `${vwWidth}vw`
