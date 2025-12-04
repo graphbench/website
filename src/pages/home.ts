@@ -331,13 +331,27 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
     ]
 
     const subsetsByDataset: Record<string, string[]> = {
-      social: ['social_networks'],
-      chip: ['chip_design'],
-      circuits: ['electronic_circuits'],
-      sat: ['sat_solving'],
-      co: ['combinatorial_optimization'],
-      ar: ['algo_res_easy', 'algo_res_medium', 'algo_res_hard'],
-      weather: ['era5_64x32', 'era5_240x121'],
+      social: ['quotes', 'replies', 'reposts'],
+      chip: ['chipdesign'],
+      circuits: [
+        'electronic_circuits_5_eff',
+        'electronic_circuits_5_vout',
+        'electronic_circuits_7_eff',
+        'electronic_circuits_7_vout',
+        'electronic_circuits_10_eff',
+        'electronic_circuits_10_vout',
+      ],
+      sat: [
+        'sat_lcg_as',
+        'sat_vcg_as',
+        'sat_vg_as',
+        'sat_lcg_epm',
+        'sat_vcg_epm',
+        'sat_vg_epm',
+      ],
+      co: ['rb_small', 'rb_large', 'er_small', 'er_large', 'ba_small', 'ba_large'],
+      ar: ['bipartitematching', 'topologicalsorting', 'mst', 'steinertree', 'bridges', 'maxclique', 'flow'],
+      weather: ['weather_64'],
     }
 
     const selectedIds = new Set<string>()
@@ -438,7 +452,8 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
 
     const genPlainCode = (): string => {
       const names = selectedSubsetNames()
-      const useList = names.length !== 1
+      const hasSelection = names.length > 0
+      const useList = names.length > 1
       const optPF = !!(document.getElementById('opt-pre-filter') as HTMLInputElement | null)?.checked
       const optPT = !!(document.getElementById('opt-pre-transform') as HTMLInputElement | null)?.checked
       const optT = !!(document.getElementById('opt-transform') as HTMLInputElement | null)?.checked
@@ -446,41 +461,42 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       lines.push('import graphbench')
       lines.push('')
       lines.push('model = ...  # your torch model')
-      if (useList) {
-        const listStr = names.length
-          ? `[` + '\n' +
-          '  ' + names.map(n => `'${n}'`).join(',\n  ') + '\n' +
-          `]`
-          : '[]'
-        lines.push(`dataset_name = ${listStr}`)
+      if (!hasSelection) {
+        lines.push('dataset_name = ...  # name of the task or list of tasks')
+      } else if (useList) {
+        lines.push('dataset_name = [')
+        names.forEach((n, idx) => {
+          const suffix = idx === names.length - 1 ? '' : ','
+          lines.push(`  '${n}'${suffix}`)
+        })
+        lines.push(']  # name of the task or list of tasks')
       } else {
-        const value = names[0] ? `'${names[0]}'` : "'social_networks'"
-        lines.push(`dataset_name = ${value}`)
+        lines.push(`dataset_name = '${names[0]}'  # name of the task or list of tasks`)
       }
-      if (optPF) lines.push('pre_filter = ...  # optional: PyG pre-filter matrix')
-      if (optPT) lines.push('pre_transform = ...  # optional: transform applied at load-time')
-      if (optT) lines.push('transform = ...  # optional: transform applied at runtime')
+      if (optPF) lines.push('pre_filter = ...  # optional: PyTorch Geometric filter matrix')
+      if (optPT) lines.push('pre_transform = ...  # optional: PyG-like transform during loading')
+      if (optT) lines.push('transform = ...  # optional: PyG-like transform at computation time')
 
       lines.push('')
-      if (useList) {
-        const args: string[] = []
-        if (optPF) args.push('pre_filter=pre_filter')
-        if (optPT) args.push('pre_transform=pre_transform')
-        if (optT) args.push('transform=transform')
-        const kws = args.length ? ', ' + args.join(', ') : ''
-        lines.push(`datasets = [graphbench.loader(name${kws}) for name in dataset_name]`)
-        lines.push(`opt_models = [graphbench.optimize(model, d['train']) for d in datasets]`)
-        lines.push(`results = [graphbench.evaluator(name, m, d['valid'], d['test']) for name, m, d in zip(dataset_name, opt_models, datasets)]`)
-      } else {
-        const args: string[] = []
-        if (optPF) args.push('pre_filter=pre_filter')
-        if (optPT) args.push('pre_transform=pre_transform')
-        if (optT) args.push('transform=transform')
-        const kws = args.length ? ', ' + args.join(', ') : ''
-        lines.push(`dataset = graphbench.loader(dataset_name${kws})`)
-        lines.push(`opt_model = graphbench.optimize(model, dataset['train'])`)
-        lines.push(`results = graphbench.evaluator(dataset_name, opt_model, dataset['valid'], dataset['test'])`)
-      }
+      lines.push('# Setting up the components of GraphBench')
+      lines.push('Evaluator = graphbench.Evaluator(dataset_name)')
+      lines.push('Optimizer = graphbench.Optimizer(optimization_args, training_method)')
+      const loaderArgs: string[] = []
+      if (optPF) loaderArgs.push('pre_filter=pre_filter')
+      if (optPT) loaderArgs.push('pre_transform=pre_transform')
+      if (optT) loaderArgs.push('transform=transform')
+      const loaderSuffix = loaderArgs.length ? ', ' + loaderArgs.join(', ') : ''
+      lines.push(`Loader = graphbench.Loader(dataset_name${loaderSuffix})`)
+
+      lines.push('')
+      lines.push('# Load a GraphBench dataset and get splits')
+      lines.push('dataset = Loader.load()')
+      lines.push('')
+      lines.push('# Optimize your model')
+      lines.push('opt_model = Optimizer.optimize()')
+      lines.push('')
+      lines.push('# Use GraphBench evaluator with targets y_true and predictions y_pred')
+      lines.push('results = Evaluator.evaluate(y_true, y_pred)')
       return lines.join('\n')
     }
 
@@ -493,8 +509,8 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       let out = escapeHtml(code)
       out = out.replace(/\b(import)\b/g, '<span class="kw">$1</span>')
       out = out.replace(/\b(graphbench)\b/g, '<span class="ns">$1</span>')
-      out = out.replace(/\b(loader|optimize|evaluator)\b/g, '<span class="fn">$1</span>')
-      out = out.replace(/\b(model|dataset_name|datasets|dataset|opt_model|opt_models|results|name)\b/g, '<span class="var">$1</span>')
+      out = out.replace(/\b(load|optimize|evaluate)\b/g, '<span class="fn">$1</span>')
+      out = out.replace(/\b(model|dataset_name|datasets|dataset|opt_model|opt_models|results|name|Loader|Optimizer|Evaluator|pre_filter|pre_transform|transform|optimization_args|training_method|y_true|y_pred)\b/g, '<span class="var">$1</span>')
       out = out.replace(/'([^']*)'/g, "<span class=\"str\">'$1'</span>")
       out = out.replace(/#([^\n]*)/g, (_m, p1) => {
         const cleaned = String(p1).replace(/<[^>]+>/g, '')

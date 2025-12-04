@@ -59,16 +59,16 @@ app.innerHTML = renderLayout('quickstart', `
               <p>Choose your components. You can plug in any PyTorch model and optional PyG-style transforms.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="import graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task\npre_filter = ...  # optional: PyG pre-filter matrix\npre_transform = ...  # optional: transform applied at load-time\ntransform = ...  # optional: transform applied at runtime" aria-label="Copy setup snippet" title="Copy">
+                  <button class="copy-btn" data-copy="import graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task or list of tasks\npre_filter = ...  # optional: PyTorch Geometric filter matrix\npre_transform = ...  # optional: PyG-like transform during loading\ntransform = ...  # optional: PyG-like transform at computation time" aria-label="Copy setup snippet" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
 <pre><code class="code-manual"><span class="kw">import</span> graphbench
 
 <span class="var">model</span> = <span class="com"># your torch model</span>
-<span class="var">dataset_name</span> = <span class="com"># name of the task</span>
-<span class="var">pre_filter</span> = <span class="com"># optional: PyG pre-filter matrix</span>
-<span class="var">pre_transform</span> = <span class="com"># optional: transform applied at load-time</span>
-<span class="var">transform</span> = <span class="com"># optional: transform applied at runtime</span></code></pre>
+<span class="var">dataset_name</span> = <span class="com"># name of the task or list of tasks</span>
+<span class="var">pre_filter</span> = <span class="com"># optional: PyTorch Geometric filter matrix</span>
+<span class="var">pre_transform</span> = <span class="com"># optional: PyG-like transform during loading</span>
+<span class="var">transform</span> = <span class="com"># optional: PyG-like transform at computation time</span></code></pre>
                 </div>
               </div>
             </div>
@@ -77,14 +77,16 @@ app.innerHTML = renderLayout('quickstart', `
           <li class="step">
             <div class="num">3</div>
             <div class="body">
-              <h3>Load data</h3>
-              <p>Create a dataset with GraphBench's loader. Transforms are optional and can be composed.</p>
+              <h3>Configure components</h3>
+              <p>Instantiate GraphBench's Evaluator, Optimizer, and Loader with your preferred arguments.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="dataset = graphbench.loader(dataset_name, pre_filter, pre_transform, transform)" aria-label="Copy data loader snippet" title="Copy">
+                  <button class="copy-btn" data-copy="Evaluator = graphbench.Evaluator(dataset_name)\nOptimizer = graphbench.Optimizer(optimization_args, training_method)\nLoader = graphbench.Loader(dataset_name, pre_filter, pre_transform, transform)" aria-label="Copy components snippet" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
-<pre><code class="code-manual"><span class="var">dataset</span> = graphbench.<span class="fn">loader</span>(<span class="var">dataset_name</span>, <span class="var">pre_filter</span>, <span class="var">pre_transform</span>, <span class="var">transform</span>)</code></pre>
+<pre><code class="code-manual"><span class="var">Evaluator</span> = graphbench.<span class="fn">Evaluator</span>(<span class="var">dataset_name</span>)
+<span class="var">Optimizer</span> = graphbench.<span class="fn">Optimizer</span>(<span class="var">optimization_args</span>, <span class="var">training_method</span>)
+<span class="var">Loader</span> = graphbench.<span class="fn">Loader</span>(<span class="var">dataset_name</span>, <span class="var">pre_filter</span>, <span class="var">pre_transform</span>, <span class="var">transform</span>)</code></pre>
                 </div>
               </div>
             </div>
@@ -93,14 +95,14 @@ app.innerHTML = renderLayout('quickstart', `
           <li class="step">
             <div class="num">4</div>
             <div class="body">
-              <h3>Optimize</h3>
-              <p>Automatically tune training hyperparameters on the training split.</p>
+              <h3>Load data</h3>
+              <p>Create your dataset and splits through the Loader, applying optional transforms when needed.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="opt_model = graphbench.optimize(model, dataset['train'])" aria-label="Copy optimization snippet" title="Copy">
+                  <button class="copy-btn" data-copy="dataset = Loader.load()" aria-label="Copy load snippet" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
-<pre><code class="code-manual"><span class="var">opt_model</span> = graphbench.<span class="fn">optimize</span>(<span class="var">model</span>, <span class="var">dataset</span>[<span class="str">'train'</span>])</code></pre>
+<pre><code class="code-manual"><span class="var">dataset</span> = <span class="var">Loader</span>.<span class="fn">load</span>()</code></pre>
                 </div>
               </div>
             </div>
@@ -109,14 +111,14 @@ app.innerHTML = renderLayout('quickstart', `
           <li class="step">
             <div class="num">5</div>
             <div class="body">
-              <h3>Evaluate</h3>
-              <p>Run standardized evaluation on validation and test splits and get metrics back.</p>
+              <h3>Optimize</h3>
+              <p>Automatically tune training hyperparameters with the Optimizer.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="results = graphbench.evaluator(dataset_name, opt_model, dataset['valid'], dataset['test'])" aria-label="Copy evaluation snippet" title="Copy">
+                  <button class="copy-btn" data-copy="opt_model = Optimizer.optimize()" aria-label="Copy optimization snippet" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
-<pre><code class="code-manual"><span class="var">results</span> = graphbench.<span class="fn">evaluator</span>(<span class="var">dataset_name</span>, <span class="var">opt_model</span>, <span class="var">dataset</span>[<span class="str">'valid'</span>], <span class="var">dataset</span>[<span class="str">'test'</span>])</code></pre>
+<pre><code class="code-manual"><span class="var">opt_model</span> = <span class="var">Optimizer</span>.<span class="fn">optimize</span>()</code></pre>
                 </div>
               </div>
             </div>
@@ -125,24 +127,50 @@ app.innerHTML = renderLayout('quickstart', `
           <li class="step">
             <div class="num">6</div>
             <div class="body">
-              <h3>All together</h3>
-              <p>Run the full GraphBench pipeline in only 3 lines of code.</p>
+              <h3>Evaluate</h3>
+              <p>Use the Evaluator with your predictions and targets to get standardized metrics.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="import graphbench\n\nmodel = ...\ndataset_name = ...\npre_filter = ...\npre_transform = ...\ntransform = ...\n\ndataset = graphbench.loader(dataset_name, pre_filter, pre_transform, transform)\nopt_model = graphbench.optimize(model, dataset['train'])\nresults = graphbench.evaluator(dataset_name, opt_model, dataset['valid'], dataset['test'])" aria-label="Copy full example" title="Copy">
+                  <button class="copy-btn" data-copy="results = Evaluator.evaluate(y_true, y_pred)" aria-label="Copy evaluation snippet" title="Copy">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  </button>
+<pre><code class="code-manual"><span class="var">results</span> = <span class="var">Evaluator</span>.<span class="fn">evaluate</span>(<span class="var">y_true</span>, <span class="var">y_pred</span>)</code></pre>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li class="step">
+            <div class="num">7</div>
+            <div class="body">
+              <h3>All together</h3>
+              <p>Run the entire GraphBench workflow with just a few lines.</p>
+              <div class="card code-card">
+                <div class="code-wrap">
+                  <button class="copy-btn" data-copy="import graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task or list of tasks\npre_filter = ...  # optional: PyTorch Geometric filter matrix\npre_transform = ...  # optional: PyG-like transform during loading\ntransform = ...  # optional: PyG-like transform at computation time\n\n# Setting up the components of GraphBench\nEvaluator = graphbench.Evaluator(dataset_name)\nOptimizer = graphbench.Optimizer(optimization_args, training_method)\nLoader = graphbench.Loader(dataset_name, pre_filter, pre_transform, transform)\n\n# Load a GraphBench dataset and get splits\ndataset = Loader.load()\n\n# Optimize your model\nopt_model = Optimizer.optimize()\n\n# Use GraphBench evaluator with targets y_true and predictions y_pred\nresults = Evaluator.evaluate(y_true, y_pred)" aria-label="Copy full example" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
 <pre><code class="code-manual"><span class="kw">import</span> graphbench
 
 <span class="var">model</span> = <span class="com"># your torch model</span>
-<span class="var">dataset_name</span> = <span class="com"># name of the task</span>
-<span class="var">pre_filter</span> = <span class="com"># optional: PyG pre-filter matrix</span>
-<span class="var">pre_transform</span> = <span class="com"># optional: transform applied at load-time</span>
-<span class="var">transform</span> = <span class="com"># optional: transform applied at runtime</span>
+<span class="var">dataset_name</span> = <span class="com"># name of the task or list of tasks</span>
+<span class="var">pre_filter</span> = <span class="com"># optional: PyTorch Geometric filter matrix</span>
+<span class="var">pre_transform</span> = <span class="com"># optional: PyG-like transform during loading</span>
+<span class="var">transform</span> = <span class="com"># optional: PyG-like transform at computation time</span>
 
-<span class="var">dataset</span> = graphbench.<span class="fn">loader</span>(<span class="var">dataset_name</span>, <span class="var">pre_filter</span>, <span class="var">pre_transform</span>, <span class="var">transform</span>)
-<span class="var">opt_model</span> = graphbench.<span class="fn">optimize</span>(<span class="var">model</span>, <span class="var">dataset</span>[<span class="str">'train'</span>])
-<span class="var">results</span> = graphbench.<span class="fn">evaluator</span>(<span class="var">dataset_name</span>, <span class="var">opt_model</span>, <span class="var">dataset</span>[<span class="str">'valid'</span>], <span class="var">dataset</span>[<span class="str">'test'</span>])</code></pre>
+<span class="com"># Setting up the components of GraphBench</span>
+<span class="var">Evaluator</span> = graphbench.<span class="fn">Evaluator</span>(<span class="var">dataset_name</span>)
+<span class="var">Optimizer</span> = graphbench.<span class="fn">Optimizer</span>(<span class="var">optimization_args</span>, <span class="var">training_method</span>)
+<span class="var">Loader</span> = graphbench.<span class="fn">Loader</span>(<span class="var">dataset_name</span>, <span class="var">pre_filter</span>, <span class="var">pre_transform</span>, <span class="var">transform</span>)
+
+<span class="com"># Load a GraphBench dataset and get splits</span>
+<span class="var">dataset</span> = <span class="var">Loader</span>.<span class="fn">load</span>()
+
+<span class="com"># Optimize your model</span>
+<span class="var">opt_model</span> = <span class="var">Optimizer</span>.<span class="fn">optimize</span>()
+
+<span class="com"># Use GraphBench evaluator with targets y_true and predictions y_pred</span>
+<span class="var">results</span> = <span class="var">Evaluator</span>.<span class="fn">evaluate</span>(<span class="var">y_true</span>, <span class="var">y_pred</span>)</code></pre>
                 </div>
               </div>
             </div>

@@ -1286,7 +1286,7 @@ footer { border-top: 1px solid var(--border); padding: 1rem 0; color: var(--text
 .qs-prose .card.code-card { border-color: var(--border); box-shadow: var(--shadow-1); background: var(--surface-1); align-self: stretch; width: 100%; }
 .qs-prose .cite-box { width: 100%; }
 
-.qs-prose .code-wrap pre { border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--code-text) 35%, transparent) color-mix(in oklab, var(--code-bg) 65%, transparent); }
+.qs-prose .code-wrap pre { border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); width: 100%; max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; overscroll-behavior-y: auto; scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--code-text) 35%, transparent) color-mix(in oklab, var(--code-bg) 65%, transparent); }
 .qs-prose .code-wrap pre code { display: inline-block; min-width: 100%; white-space: pre; font-size: inherit; }
 .qs-prose .code-wrap pre::-webkit-scrollbar { height: 6px; }
 .qs-prose .code-wrap pre::-webkit-scrollbar-track { background: color-mix(in oklab, var(--code-bg) 65%, transparent); border-radius: 999px; }
@@ -1366,8 +1366,8 @@ footer { border-top: 1px solid var(--border); padding: 1rem 0; color: var(--text
 .builder-section .builder-code pre { background: #f8fafc; color: var(--text-1); border: 1px solid var(--border); border-left: 0; border-right: 0; }
 .builder-section .builder-code .copy-btn { color: var(--text-1); }
 
-.builder-section .builder-code pre { overflow-x: auto; overscroll-behavior: contain; }
-.builder-section .builder-code { overscroll-behavior: contain; }
+.builder-section .builder-code pre { overflow-x: auto; overscroll-behavior-x: contain; overscroll-behavior-y: auto; }
+.builder-section .builder-code { overscroll-behavior-x: contain; overscroll-behavior-y: auto; }
 .builder-section .builder-code pre code { display: inline-block; white-space: pre; min-width: 100%; }
 
 .builder-section .code-manual .kw { color: #0f766e; font-style: normal; }
