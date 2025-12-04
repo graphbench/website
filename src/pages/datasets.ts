@@ -155,7 +155,7 @@ const dsSlide = (r: Ds, idx: number, total: number): string => {
             </div>
           </div>
         </div>
-        <div class="col-6 ${r.id === 'weather' ? 'wf-right' : (r.id === 'ar' ? 'ar-right' : (r.id === 'co' ? 'ar-right' : (r.id === 'social' ? 'ar-right' : '')))}" id="ds-side-${r.id}"${r.id === 'social' || r.id === 'co' ? ' style="display: none;"' : ''}></div>
+        <div class="col-6 ${r.id === 'weather' ? 'wf-right' : (r.id === 'ar' ? 'ar-right' : (r.id === 'co' ? 'ar-right' : (r.id === 'social' ? 'ar-right' : '')))}" id="ds-side-${r.id}"${r.id === 'social' ? ' style="display: none;"' : ''}></div>
       </div>
       ${upBtn}
       <div class="arrow-caption arrow-caption-up">${prevName}</div>
@@ -356,7 +356,359 @@ enhanceInteractions()
 ;(function () {
   const mount = document.getElementById('ds-side-weather') as HTMLElement | null
   if (!mount) return
-  try { initWeatherGlobe({ mountEl: mount, skin: 'blue' }) } catch {}
+
+  // Store original mount styles
+  const originalMountDisplay = mount.style.display || ''
+  const originalMountHeight = mount.style.height || ''
+
+  // Create container structure
+  mount.style.display = 'flex'
+  mount.style.flexDirection = 'column'
+  mount.style.alignItems = 'flex-start'
+  mount.style.justifyContent = 'center'
+  mount.style.gap = '1rem'
+  mount.style.paddingLeft = '6rem'
+  mount.style.paddingTop = '2rem'
+  mount.style.position = 'relative'
+
+  // Create wrapper for info display
+  const infoWrapper = document.createElement('div')
+  infoWrapper.style.display = 'flex'
+  infoWrapper.style.flexDirection = 'column'
+  infoWrapper.style.alignItems = 'flex-start'
+  infoWrapper.style.justifyContent = 'center'
+  infoWrapper.style.gap = '1rem'
+  infoWrapper.style.width = '100%'
+
+  // Create wrapper for globe
+  const globeWrapper = document.createElement('div')
+  globeWrapper.id = 'weather-globe-container'
+  globeWrapper.style.display = 'none'
+  globeWrapper.style.width = '100%'
+  globeWrapper.style.height = '100%'
+  globeWrapper.style.minHeight = '400px'
+
+  // Create text container for info
+  const textContainer = document.createElement('div')
+  textContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif'
+  textContainer.style.fontSize = '0.9rem'
+  textContainer.style.lineHeight = '1.7'
+  textContainer.style.color = 'var(--text-2)'
+
+  const createSection = (title: string, description: string, dataField: string, dimensions: string) => {
+    const section = document.createElement('div')
+    section.style.marginBottom = '0.5rem'
+
+    const titleEl = document.createElement('div')
+    titleEl.style.fontWeight = '600'
+    titleEl.style.color = 'var(--ds-g4)'
+    titleEl.style.marginBottom = '0.3rem'
+    titleEl.textContent = title
+
+    const descEl = document.createElement('div')
+    descEl.style.marginBottom = '0.2rem'
+    descEl.innerHTML = description
+
+    const dataEl = document.createElement('div')
+    dataEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dataEl.style.fontSize = '0.85rem'
+    dataEl.style.color = 'var(--text-2)'
+    dataEl.style.backgroundColor = 'var(--surface-1)'
+    dataEl.style.padding = '0.3rem 0.5rem'
+    dataEl.style.borderRadius = '4px'
+    dataEl.style.display = 'inline-block'
+    dataEl.style.marginRight = '0.5rem'
+    dataEl.textContent = dataField
+
+    const dimLabel = document.createElement('span')
+    dimLabel.style.fontSize = '0.85rem'
+    dimLabel.style.color = 'var(--text-3)'
+    dimLabel.style.marginRight = '0.3rem'
+    dimLabel.textContent = 'Dimension: '
+
+    const dimEl = document.createElement('span')
+    dimEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dimEl.style.fontSize = '0.85rem'
+    dimEl.style.color = 'var(--text-2)'
+    dimEl.style.backgroundColor = 'var(--surface-1)'
+    dimEl.style.padding = '0.3rem 0.5rem'
+    dimEl.style.borderRadius = '4px'
+    dimEl.style.display = 'inline-block'
+    dimEl.textContent = dimensions
+
+    section.appendChild(titleEl)
+    section.appendChild(descEl)
+    const metaLine = document.createElement('div')
+    metaLine.appendChild(dataEl)
+    metaLine.appendChild(dimLabel)
+    metaLine.appendChild(dimEl)
+    section.appendChild(metaLine)
+
+    return section
+  }
+
+  // Create weather info content
+  const createWeatherContent = () => {
+    const container = document.createElement('div')
+
+    const nodeSection = createSection(
+      'Node features',
+      'Weather variables across all pressure levels for each coordinate.',
+      'data.x',
+      '[num_nodes, 83]'
+    )
+
+    // Edge features section (no data field or dimension)
+    const edgeSection = document.createElement('div')
+    edgeSection.style.marginBottom = '0.5rem'
+    const edgeTitleEl = document.createElement('div')
+    edgeTitleEl.style.fontWeight = '600'
+    edgeTitleEl.style.color = 'var(--ds-g4)'
+    edgeTitleEl.style.marginBottom = '0.3rem'
+    edgeTitleEl.textContent = 'Edge features'
+    const edgeDescEl = document.createElement('div')
+    edgeDescEl.style.marginBottom = '0.2rem'
+    edgeDescEl.innerHTML = 'None.'
+    edgeSection.appendChild(edgeTitleEl)
+    edgeSection.appendChild(edgeDescEl)
+
+    const targetSection = createSection(
+      'Target',
+      'Prediction for all weather variables across all pressure levels.',
+      'data.y',
+      '[num_nodes, 83]'
+    )
+
+    container.appendChild(nodeSection)
+    container.appendChild(edgeSection)
+    container.appendChild(targetSection)
+
+    return container
+  }
+
+  // Create toggle button
+  const toggleBtn = document.createElement('button')
+  toggleBtn.className = 'weather-toggle-btn'
+  toggleBtn.setAttribute('aria-label', 'Toggle between info and globe view')
+  toggleBtn.style.cssText = `
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: var(--surface-0);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.2s;
+  `
+  toggleBtn.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  `
+  toggleBtn.addEventListener('mouseenter', () => {
+    toggleBtn.style.backgroundColor = 'var(--surface-1)'
+  })
+  toggleBtn.addEventListener('mouseleave', () => {
+    toggleBtn.style.backgroundColor = 'var(--surface-0)'
+  })
+
+  // Initialize content
+  const weatherContent = createWeatherContent()
+  textContainer.appendChild(weatherContent)
+  infoWrapper.appendChild(textContainer)
+
+  mount.appendChild(infoWrapper)
+  mount.appendChild(globeWrapper)
+  mount.appendChild(toggleBtn)
+
+  // Initialize globe lazily when first shown
+  let globeInitialized = false
+  const initializeGlobe = () => {
+    if (!globeInitialized) {
+      try { 
+        initWeatherGlobe({ mountEl: globeWrapper, skin: 'blue' })
+        globeInitialized = true
+      } catch {}
+    }
+  }
+
+  let showingInfo = true
+
+  toggleBtn.addEventListener('click', () => {
+    showingInfo = !showingInfo
+    if (showingInfo) {
+      // Show info, restore flex layout
+      mount.style.display = 'flex'
+      mount.style.flexDirection = 'column'
+      mount.style.alignItems = 'flex-start'
+      mount.style.justifyContent = 'center'
+      mount.style.gap = '1rem'
+      mount.style.paddingLeft = '6rem'
+      mount.style.paddingTop = '2rem'
+      mount.style.position = 'relative'
+      infoWrapper.style.display = 'flex'
+      globeWrapper.style.display = 'none'
+      toggleBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      `
+    } else {
+      // Show globe, reset mount to original state for globe display
+      mount.style.display = originalMountDisplay || 'block'
+      mount.style.flexDirection = ''
+      mount.style.alignItems = ''
+      mount.style.justifyContent = ''
+      mount.style.gap = ''
+      mount.style.paddingLeft = ''
+      mount.style.paddingTop = ''
+      mount.style.position = 'relative'
+      mount.style.height = originalMountHeight || '100%'
+      mount.style.minHeight = '400px'
+      infoWrapper.style.display = 'none'
+      globeWrapper.style.display = 'block'
+      globeWrapper.style.position = 'relative'
+      globeWrapper.style.width = '100%'
+      globeWrapper.style.height = '100%'
+      initializeGlobe()
+      toggleBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      `
+    }
+  })
+})()
+
+;(function () {
+  const mount = document.getElementById('ds-side-co') as HTMLElement | null
+  if (!mount) return
+
+  // Create container structure
+  mount.style.display = 'flex'
+  mount.style.flexDirection = 'column'
+  mount.style.alignItems = 'flex-start'
+  mount.style.justifyContent = 'center'
+  mount.style.gap = '1rem'
+  mount.style.paddingLeft = '6rem'
+  mount.style.paddingTop = '2rem'
+
+  // Create text container for info
+  const textContainer = document.createElement('div')
+  textContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif'
+  textContainer.style.fontSize = '0.9rem'
+  textContainer.style.lineHeight = '1.7'
+  textContainer.style.color = 'var(--text-2)'
+
+  const createSection = (title: string, description: string, dataField: string, dimensions: string) => {
+    const section = document.createElement('div')
+    section.style.marginBottom = '0.5rem'
+
+    const titleEl = document.createElement('div')
+    titleEl.style.fontWeight = '600'
+    titleEl.style.color = 'var(--ds-g3)'
+    titleEl.style.marginBottom = '0.3rem'
+    titleEl.textContent = title
+
+    const descEl = document.createElement('div')
+    descEl.style.marginBottom = '0.2rem'
+    descEl.innerHTML = description
+
+    const dataEl = document.createElement('div')
+    dataEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dataEl.style.fontSize = '0.85rem'
+    dataEl.style.color = 'var(--text-2)'
+    dataEl.style.backgroundColor = 'var(--surface-1)'
+    dataEl.style.padding = '0.3rem 0.5rem'
+    dataEl.style.borderRadius = '4px'
+    dataEl.style.display = 'inline-block'
+    dataEl.style.marginRight = '0.5rem'
+    dataEl.textContent = dataField
+
+    const dimLabel = document.createElement('span')
+    dimLabel.style.fontSize = '0.85rem'
+    dimLabel.style.color = 'var(--text-3)'
+    dimLabel.style.marginRight = '0.3rem'
+    dimLabel.textContent = 'Dimension: '
+
+    const dimEl = document.createElement('span')
+    dimEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dimEl.style.fontSize = '0.85rem'
+    dimEl.style.color = 'var(--text-2)'
+    dimEl.style.backgroundColor = 'var(--surface-1)'
+    dimEl.style.padding = '0.3rem 0.5rem'
+    dimEl.style.borderRadius = '4px'
+    dimEl.style.display = 'inline-block'
+    dimEl.textContent = dimensions
+
+    section.appendChild(titleEl)
+    section.appendChild(descEl)
+    const metaLine = document.createElement('div')
+    metaLine.appendChild(dataEl)
+    metaLine.appendChild(dimLabel)
+    metaLine.appendChild(dimEl)
+    section.appendChild(metaLine)
+
+    return section
+  }
+
+  // Create CO info content
+  const createCOContent = () => {
+    const container = document.createElement('div')
+
+    // Node features section (no data field or dimension)
+    const nodeSection = document.createElement('div')
+    nodeSection.style.marginBottom = '0.5rem'
+    const nodeTitleEl = document.createElement('div')
+    nodeTitleEl.style.fontWeight = '600'
+    nodeTitleEl.style.color = 'var(--ds-g3)'
+    nodeTitleEl.style.marginBottom = '0.3rem'
+    nodeTitleEl.textContent = 'Node features'
+    const nodeDescEl = document.createElement('div')
+    nodeDescEl.style.marginBottom = '0.2rem'
+    nodeDescEl.innerHTML = 'None.'
+    nodeSection.appendChild(nodeTitleEl)
+    nodeSection.appendChild(nodeDescEl)
+
+    // Edge features section (no data field or dimension)
+    const edgeSection = document.createElement('div')
+    edgeSection.style.marginBottom = '0.5rem'
+    const edgeTitleEl = document.createElement('div')
+    edgeTitleEl.style.fontWeight = '600'
+    edgeTitleEl.style.color = 'var(--ds-g3)'
+    edgeTitleEl.style.marginBottom = '0.3rem'
+    edgeTitleEl.textContent = 'Edge features'
+    const edgeDescEl = document.createElement('div')
+    edgeDescEl.style.marginBottom = '0.2rem'
+    edgeDescEl.innerHTML = 'None.'
+    edgeSection.appendChild(edgeTitleEl)
+    edgeSection.appendChild(edgeDescEl)
+
+    const targetSection = createSection(
+      'Target',
+      'Prediction of the optimal objective value of the given CO instance.',
+      'data.y',
+      '[1]'
+    )
+
+    container.appendChild(nodeSection)
+    container.appendChild(edgeSection)
+    container.appendChild(targetSection)
+
+    return container
+  }
+
+  // Initialize content
+  const coContent = createCOContent()
+  textContainer.appendChild(coContent)
+  mount.appendChild(textContainer)
 })()
 
 ;(function () {

@@ -26,7 +26,7 @@ export function initWeatherGlobe(options: WeatherGlobeOptions) {
   const controls: any = (globe as any).controls()
   controls.autoRotate = true
   controls.autoRotateSpeed = 0.45
-  globe.pointOfView({ lat: 10, lng: 10, altitude: 2.2 }, 0)
+  globe.pointOfView({ lat: 10, lng: 10, altitude: 3.1 }, 0)
 
   const CLOUDS_ALT = 0.1
   const CLOUDS_ROTATION_SPEED = -0.011
