@@ -1,4 +1,4 @@
-import{r,g as c,e as p}from"./layout-XksyZw2U.js";const l=document.querySelector("#app");l.innerHTML=r("updates",`
+import{r,g as c,e as p}from"./layout-BlZ2Q-a2.js";const l=document.querySelector("#app");l.innerHTML=r("updates",`
   <section class="page-header">
     <div class="container">
       <div class="title-row">
