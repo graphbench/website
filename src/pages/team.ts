@@ -18,14 +18,14 @@ app.innerHTML = renderLayout('team', `
   <section class="container">
     <div class="team-grid">
       ${[
-        { name: 'Antoine Siraudin', image: 'antoine_siraudin.png', institution: 'RWTH Aachen University', domains: [{ label: 'Chip Design', colorClass: 'team-domain-g2' }] },
+        { name: 'Timo Stoll', image: 'timo_stoll.png', institution: 'RWTH Aachen University', domains: [{ label: 'Algorithmic Reasoning', colorClass: 'team-domain-g3' }, { label: 'Weather Forecasting', colorClass: 'team-domain-g4' }] },
         { name: 'Chendi Qian', image: 'chendi_qian.png', institution: 'RWTH Aachen University', domains: [{ label: 'Combinatorial Optimization', colorClass: 'team-domain-g3' }] },
         { name: 'Ben Finkelshtein', image: 'ben_finkelshtein.png', institution: 'University of Oxford', domains: [{ label: 'Social Networks', colorClass: 'team-domain-g1' }] },
         { name: 'Ali Parviz', image: 'ali_parviz.png', institution: 'Mila - Quebec AI Institute', domains: [{ label: 'Electronic Circuits', colorClass: 'team-domain-g2' }] },
         { name: 'Darius Weber', image: 'darius_weber.png', institution: 'RWTH Aachen University', domains: [{ label: 'Chip Design', colorClass: 'team-domain-g2' }] },
         { name: 'Fabrizio Frasca', image: 'fabrizio_frasca.png', institution: 'Technion – Israel Institute of Technology', domains: [{ label: 'Social Networks', colorClass: 'team-domain-g1' }] },
         { name: 'Hadar Shavit', image: 'hadar_shavit.png', institution: 'RWTH Aachen University', domains: [{ label: 'SAT Solving', colorClass: 'team-domain-g3' }] },
-        { name: 'Timo Stoll', image: 'timo_stoll.png', institution: 'RWTH Aachen University', domains: [{ label: 'Algorithmic Reasoning', colorClass: 'team-domain-g3' }, { label: 'Weather Forecasting', colorClass: 'team-domain-g4' }] },
+        { name: 'Antoine Siraudin', image: 'antoine_siraudin.png', institution: 'RWTH Aachen University', domains: [{ label: 'Chip Design', colorClass: 'team-domain-g2' }] },
         { name: 'Arman Mielke', image: 'arman_mielke.png', institution: 'University of Stuttgart', domains: [{ label: 'Combinatorial Optimization', colorClass: 'team-domain-g3' }] },
         { name: 'Marie Anastacio', image: 'marie_anastacio.png', institution: 'RWTH Aachen University', domains: [{ label: 'SAT Solving', colorClass: 'team-domain-g3' }] },
         { name: 'Erik Müller', image: 'erik_muller.png', institution: 'RWTH Aachen University', domains: [{ label: 'Algorithmic Reasoning', colorClass: 'team-domain-g3' }, { label: 'Weather Forecasting', colorClass: 'team-domain-g4' }] },

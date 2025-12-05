@@ -2,11 +2,14 @@ import '../style.css'
 import { renderLayout, enhanceInteractions } from '../shared/layout'
 
 const citationBibtexLines = [
-  '@article{name2025graphbench,',
-  '  title={GraphBench: Next-generation graph learning benchmarking},',
-  '  author={name, name, name},',
-  '  journal={arXiv preprint arXiv:00000.00000},',
-  '  year={2025}',
+  '@misc{stoll2025graphbenchnextgenerationgraphlearning,',
+  '      title={GraphBench: Next-generation graph learning benchmarking},',
+  '      author={Timo Stoll and Chendi Qian and Ben Finkelshtein and Ali Parviz and Darius Weber and Fabrizio Frasca and Hadar Shavit and Antoine Siraudin and Arman Mielke and Marie Anastacio and Erik Müller and Maya Bechler-Speicher and Michael Bronstein and Mikhail Galkin and Holger Hoos and Mathias Niepert and Bryan Perozzi and Jan Tönshoff and Christopher Morris},',
+  '      year={2025},',
+  '      eprint={2512.04475},',
+  '      archivePrefix={arXiv},',
+  '      primaryClass={cs.LG},',
+  '      url={https://arxiv.org/abs/2512.04475},',
   '}',
 ]
 const citationBibtex = citationBibtexLines.join('\n')
