@@ -14,10 +14,10 @@ const items: Ds[] = [
 ]
 
 const dsStats: Record<string, { graphs: string; nodes: string; edges: string; size: string }> = {
-  social: { graphs: '3', nodes: '286K – 580K', edges: '3M – 17M', size: '' },
-  chip: { graphs: '1.2M', nodes: '– 335', edges: '', size: '' },
-  circuits: { graphs: '93,000', nodes: '13 – 24', edges: '30 – 56', size: '' },
-  sat: { graphs: '208,788', nodes: '', edges: '', size: '' },
+  social: { graphs: '3', nodes: '286K – 580K', edges: '3M – 17M', size: '3.5GB' },
+  chip: { graphs: '1.2M', nodes: '– 335', edges: '', size: '750MB' },
+  circuits: { graphs: '93,000', nodes: '13 – 24', edges: '30 – 56', size: '25MB' },
+  sat: { graphs: '208,788', nodes: '', edges: '', size: '16GB' },
   co: { graphs: '300,000', nodes: '200 – 1,200', edges: '792 – 187,600', size: '176.8GB' },
   ar: { graphs: '21M', nodes: '16 – 512', edges: '15 – 7,319', size: '85GB' },
   weather: { graphs: '93,544', nodes: '4,610', edges: '7,928', size: '60.6GB' },
@@ -781,29 +781,157 @@ enhanceInteractions()
     return section
   }
 
-  const createTaskContent = (_taskType: string) => {
+  const createNoneSection = (title: string) => {
+    const section = document.createElement('div')
+    section.style.marginBottom = '0.5rem'
+
+    const titleEl = document.createElement('div')
+    titleEl.style.fontWeight = '600'
+    titleEl.style.color = 'var(--ds-g3)'
+    titleEl.style.marginBottom = '0.3rem'
+    titleEl.textContent = title
+
+    const descEl = document.createElement('div')
+    descEl.style.marginBottom = '0.2rem'
+    descEl.innerHTML = 'None.'
+
+    section.appendChild(titleEl)
+    section.appendChild(descEl)
+
+    return section
+  }
+
+  const createTaskContent = (taskType: string) => {
     const container = document.createElement('div')
 
-    const nodeSection = createSection(
-      'Node features',
-      'Weight in Minimum spanning tree',
-      'data.x',
-      '[num_nodes, 1]'
-    )
+    let nodeSection: HTMLElement
+    let edgeSection: HTMLElement
+    let targetSection: HTMLElement
 
-    const edgeSection = createSection(
-      'Edge features',
-      'Weight in Minimum spanning tree',
-      'data.edge_attr',
-      '[num_edges, 2]'
-    )
+    switch (taskType) {
+      case 'minimum-spanning-tree':
+        nodeSection = createNoneSection('Node features')
+        edgeSection = createSection(
+          'Edge features',
+          'Edge weights.',
+          'data.edge_attr',
+          '[num_edges, 1]'
+        )
+        targetSection = createSection(
+          'Target',
+          'Edges contained in the minimum spanning tree.',
+          'data.y',
+          '[num_edges, 1]'
+        )
+        break
 
-    const targetSection = createSection(
-      'Target',
-      'Classification of edges belonging to Minimum spanning tree',
-      'data.y',
-      '[num_edges, 1]'
-    )
+      case 'bipartite-matching':
+        nodeSection = createNoneSection('Node features')
+        edgeSection = createSection(
+          'Edge features',
+          'Edge weights.',
+          'data.edge_attr',
+          '[num_edges, 1]'
+        )
+        targetSection = createSection(
+          'Target',
+          'Edges contained in the maximum matching.',
+          'data.y',
+          '[num_edges, 1]'
+        )
+        break
+
+      case 'bridge-finding':
+        nodeSection = createNoneSection('Node features')
+        edgeSection = createNoneSection('Edge features')
+        targetSection = createSection(
+          'Target',
+          'Edges that are bridges.',
+          'data.y',
+          '[num_edges, 1]'
+        )
+        break
+
+      case 'maximum-flow':
+        nodeSection = createSection(
+          'Node features',
+          '0 except for <code>source = 1</code> and <code>sink = 2</code>.',
+          'data.x',
+          '[num_nodes, 1]'
+        )
+        edgeSection = createSection(
+          'Edge features',
+          'Edge weights.',
+          'data.edge_attr',
+          '[num_edges, 1]'
+        )
+        targetSection = createSection(
+          'Target',
+          'Maximum flow computation.',
+          'data.y',
+          '[1]'
+        )
+        break
+
+      case 'steiner-tree':
+        nodeSection = createSection(
+          'Node features',
+          '0, except for terminal nodes.',
+          'data.x',
+          '[num_nodes, 1]'
+        )
+        edgeSection = createSection(
+          'Edge features',
+          'Edge weights.',
+          'data.edge_attr',
+          '[num_edges, 1]'
+        )
+        targetSection = createSection(
+          'Target',
+          'Edges contained in the Steiner tree.',
+          'data.y',
+          '[num_edges, 1]'
+        )
+        break
+
+      case 'topological-sort':
+        nodeSection = createNoneSection('Node features')
+        edgeSection = createNoneSection('Edge features')
+        targetSection = createSection(
+          'Target',
+          'Topological rank.',
+          'data.y',
+          '[num_nodes, 1]'
+        )
+        break
+
+      case 'maximum-clique':
+        nodeSection = createNoneSection('Node features')
+        edgeSection = createNoneSection('Edge features')
+        targetSection = createSection(
+          'Target',
+          'Nodes belonging to the maximum clique.',
+          'data.y',
+          '[num_nodes, 1]'
+        )
+        break
+
+      default:
+        // Fallback to MST
+        nodeSection = createNoneSection('Node features')
+        edgeSection = createSection(
+          'Edge features',
+          'Edge weights.',
+          'data.edge_attr',
+          '[num_edges, 1]'
+        )
+        targetSection = createSection(
+          'Target',
+          'Edges contained in the minimum spanning tree.',
+          'data.y',
+          '[num_edges, 1]'
+        )
+    }
 
     container.appendChild(nodeSection)
     container.appendChild(edgeSection)
