@@ -84,7 +84,7 @@ import{r as j,e as F}from"./layout-BlZ2Q-a2.js";const O=document.querySelector("
         <div class="col-4">
           <h3>Evaluation</h3>
           <p>GraphBench provides extensive evaluation of your model, covering splits, metrics, hyperparameter tuning, and OOD generalization.</p>
-          <div class="flow-cta"><a class="btn btn-outline" href="https://arxiv.org/" target="_blank" rel="noopener noreferrer">Learn more</a></div>
+          <div class="flow-cta"><a class="btn btn-outline" href="https://arxiv.org/abs/2512.04475" target="_blank" rel="noopener noreferrer">Learn more</a></div>
         </div>
       </div>
 
