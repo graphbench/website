@@ -17,7 +17,7 @@ export const NAV_LINKS: NavLink[] = [
   { key: 'datasets', label: 'Datasets', href: `./datasets.html` },
   { key: 'updates', label: 'Updates', href: `./updates.html` },
   { key: 'team', label: 'Team', href: `./team.html` },
-  { label: 'Paper', href: 'https://arxiv.org/', external: true },
+  { label: 'Paper', href: 'https://arxiv.org/abs/2512.04475/', external: true },
   { label: 'GitHub', href: 'https://github.com/chrsmrrs/graphbench', external: true },
 ]
 
