@@ -458,7 +458,7 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       const optPT = !!(document.getElementById('opt-pre-transform') as HTMLInputElement | null)?.checked
       const optT = !!(document.getElementById('opt-transform') as HTMLInputElement | null)?.checked
       const lines: string[] = []
-      lines.push('import graphbench')
+      lines.push('import graphbench-lib as graphbench')
       lines.push('')
       lines.push('model = ...  # your torch model')
       if (!hasSelection) {
@@ -508,7 +508,7 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
     const tokenColorize = (code: string): string => {
       let out = escapeHtml(code)
       out = out.replace(/\b(import)\b/g, '<span class="kw">$1</span>')
-      out = out.replace(/\b(graphbench)\b/g, '<span class="ns">$1</span>')
+      out = out.replace(/\b(graphbench-lib|graphbench)\b/g, '<span class="ns">$1</span>')
       out = out.replace(/\b(load|optimize|evaluate)\b/g, '<span class="fn">$1</span>')
       out = out.replace(/\b(model|dataset_name|datasets|dataset|opt_model|opt_models|results|name|Loader|Optimizer|Evaluator|pre_filter|pre_transform|transform|optimization_args|training_method|y_true|y_pred)\b/g, '<span class="var">$1</span>')
       out = out.replace(/'([^']*)'/g, "<span class=\"str\">'$1'</span>")
@@ -516,7 +516,7 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         const cleaned = String(p1).replace(/<[^>]+>/g, '')
         return '<span class="com">#' + cleaned + '</span>'
       })
-      out = out.replace(/<span class=\"com\">#([^<]*)\bgraphbench\b([^<]*)<\/span>/g, '<span class="com">#$1</span><span class="ns">graphbench</span><span class="com">$2</span>')
+      out = out.replace(/<span class=\"com\">#([^<]*)\b(graphbench-lib|graphbench)\b([^<]*)<\/span>/g, '<span class="com">#$1</span><span class="ns">$2</span><span class="com">$3</span>')
       return out
     }
 
