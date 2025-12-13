@@ -4859,11 +4859,11 @@ Power Conversion Efficiency" tabindex="0" role="button" aria-label="Show perform
 <span><strong style=&quot;color: var(--tip-accent); font-weight: 700;&quot;>10</strong>-component circuits</span>" tabindex="0" role="button" aria-label="Show dataset variants" style="--tip-accent: var(--ds-g2);">3</strong> datasets, allowing evaluation of structural generalization and transfer across circuit sizes. Circuits are sourced from a procedural generator following analog design rules.</p>`:i.id==="chip"?`<p>We focus on learning to generate small Boolean circuits. Each circuit is modeled as an and-inverter graph (<strong class="accent-num" style="--tip-accent: var(--ds-g2);">AIG</strong>) of logic gates, where nodes denote gates and edges represent signal connections.</p>
         <p>Given a set of Boolean functions, the model must learn to produce functionally equivalent, optimized circuits, targeting reductions in area, power, and delay.</p>`:i.id==="co"?`<p>We synthetically generate optimization problems across <strong class="accent-num tip-link tip-enhanced" data-vars="Erdős–Rényi
 Barabási–Albert
-Random Bipartite" tabindex="0" role="button" aria-label="Show random graph families" style="--tip-accent: var(--ds-g3);">3</strong> random graph families — each available in <strong class="accent-num tip-link tip-enhanced" data-vars="SMALL
+RB graphs" tabindex="0" role="button" aria-label="Show random graph families" style="--tip-accent: var(--ds-g3);">3</strong> random graph families — each available in <strong class="accent-num tip-link tip-enhanced" data-vars="SMALL
 LARGE" tabindex="0" role="button" aria-label="Show configurations" style="--tip-accent: var(--ds-g3);">2</strong> configurations.</p>
-        <p>Every instance encodes one of <strong class="accent-num tip-link tip-enhanced" data-vars="Maximum Independent Set
+        <p>Every graph includes ground truth solutions for <strong class="accent-num tip-link tip-enhanced" data-vars="Maximum Independent Set
 Maximum Cut
-Graph Coloring" tabindex="0" role="button" aria-label="Show NP-hard problems" style="--tip-accent: var(--ds-g3);">3</strong> NP-hard problems with ground-truth solutions computed via exact solvers.</p>
+Graph Coloring" tabindex="0" role="button" aria-label="Show NP-hard problems" style="--tip-accent: var(--ds-g3);">3</strong> NP-hard problems.</p>
         <p>Models must learn to predict optimal solution costs or approximate combinatorial objectives, testing both supervised and unsupervised regimes.</p>`:i.id==="ar"?`<p>We synthetically generate unique graphs by sampling from <strong class="accent-num tip-link tip-enhanced" data-vars="Erdős–Rényi 
 Newman–Watts–Strogatz 
 Barabási–Albert 
