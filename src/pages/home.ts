@@ -458,7 +458,7 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       const optPT = !!(document.getElementById('opt-pre-transform') as HTMLInputElement | null)?.checked
       const optT = !!(document.getElementById('opt-transform') as HTMLInputElement | null)?.checked
       const lines: string[] = []
-      lines.push('import graphbench-lib as graphbench')
+      lines.push('import graphbench')
       lines.push('')
       lines.push('model = ...  # your torch model')
       if (!hasSelection) {

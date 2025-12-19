@@ -15,7 +15,7 @@ const items: Ds[] = [
 
 const dsStats: Record<string, { graphs: string; nodes: string; edges: string; size: string }> = {
   social: { graphs: '3', nodes: '286K – 580K', edges: '3M – 17M', size: '3.5GB' },
-  chip: { graphs: '1.2M', nodes: '– 335', edges: '', size: '750MB' },
+  chip: { graphs: '1.2M', nodes: '23 – 335', edges: '33 – 652', size: '4GB' },
   circuits: { graphs: '93,000', nodes: '13 – 24', edges: '30 – 56', size: '25MB' },
   sat: { graphs: '208,788', nodes: '', edges: '', size: '16GB' },
   co: { graphs: '300,000', nodes: '200 – 1,200', edges: '792 – 187,600', size: '176.8GB' },
@@ -1046,6 +1046,112 @@ enhanceInteractions()
 
   const initialContent = createTaskContent('minimum-spanning-tree')
   textContainer.appendChild(initialContent)
+  mount.appendChild(textContainer)
+})()
+
+;(function () {
+  const mount = document.getElementById('ds-side-chip') as HTMLElement | null
+  if (!mount) return
+
+  mount.style.display = 'flex'
+  mount.style.flexDirection = 'column'
+  mount.style.alignItems = 'flex-start'
+  mount.style.justifyContent = 'center'
+  mount.style.gap = '1rem'
+  mount.style.paddingLeft = '6rem'
+  mount.style.paddingTop = '2rem'
+
+  const textContainer = document.createElement('div')
+  textContainer.style.fontFamily = 'system-ui, -apple-system, sans-serif'
+  textContainer.style.fontSize = '0.9rem'
+  textContainer.style.lineHeight = '1.7'
+  textContainer.style.color = 'var(--text-2)'
+
+  const createSection = (title: string, description: string, dataField: string, dimensions: string) => {
+    const section = document.createElement('div')
+    section.style.marginBottom = '0.5rem'
+
+    const titleEl = document.createElement('div')
+    titleEl.style.fontWeight = '600'
+    titleEl.style.color = 'var(--ds-g2)'
+    titleEl.style.marginBottom = '0.3rem'
+    titleEl.textContent = title
+
+    const descEl = document.createElement('div')
+    descEl.style.marginBottom = '0.2rem'
+    descEl.innerHTML = description
+
+    const dataEl = document.createElement('div')
+    dataEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dataEl.style.fontSize = '0.85rem'
+    dataEl.style.color = 'var(--text-2)'
+    dataEl.style.backgroundColor = 'var(--surface-1)'
+    dataEl.style.padding = '0.3rem 0.5rem'
+    dataEl.style.borderRadius = '4px'
+    dataEl.style.display = 'inline-block'
+    dataEl.style.marginRight = '0.5rem'
+    dataEl.textContent = dataField
+
+    const dimLabel = document.createElement('span')
+    dimLabel.style.fontSize = '0.85rem'
+    dimLabel.style.color = 'var(--text-3)'
+    dimLabel.style.marginRight = '0.3rem'
+    dimLabel.textContent = 'Dimension: '
+
+    const dimEl = document.createElement('span')
+    dimEl.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace'
+    dimEl.style.fontSize = '0.85rem'
+    dimEl.style.color = 'var(--text-2)'
+    dimEl.style.backgroundColor = 'var(--surface-1)'
+    dimEl.style.padding = '0.3rem 0.5rem'
+    dimEl.style.borderRadius = '4px'
+    dimEl.style.display = 'inline-block'
+    dimEl.textContent = dimensions
+
+    section.appendChild(titleEl)
+    section.appendChild(descEl)
+    const metaLine = document.createElement('div')
+    metaLine.appendChild(dataEl)
+    metaLine.appendChild(dimLabel)
+    metaLine.appendChild(dimEl)
+    section.appendChild(metaLine)
+
+    return section
+  }
+
+  const createChipContent = () => {
+    const container = document.createElement('div')
+
+    const nodeSection = createSection(
+      'Node features',
+      'One-hot encoded gate types: <code>[AND, INPUT, OUTPUT]</code>.',
+      'data.x',
+      '[num_nodes, 3]'
+    )
+
+    const edgeSection = createSection(
+      'Edge features',
+      'Inversion flag: <code>0</code> = direct connection, <code>1</code> = negated/inverted connection.',
+      'data.edge_attr',
+      '[num_edges, 1]'
+    )
+
+    const targetSection = createSection(
+      'Target',
+      'Matrix of truth table vectors for the circuit\'s outputs. Padded to <code>2<sup>8</sup></code> (256) with value <code>-1</code>.',
+      'data.truth_vectors',
+      '[num_outputs, 256]'
+    )
+
+    container.appendChild(nodeSection)
+    container.appendChild(edgeSection)
+    container.appendChild(targetSection)
+
+    return container
+  }
+
+  const chipContent = createChipContent()
+  textContainer.appendChild(chipContent)
   mount.appendChild(textContainer)
 })()
 

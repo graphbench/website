@@ -62,10 +62,10 @@ app.innerHTML = renderLayout('quickstart', `
               <p>Choose your components. You can plug in any PyTorch model and optional PyG-style transforms.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="import graphbench-lib as graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task or list of tasks\npre_filter = ...  # optional: PyTorch Geometric filter matrix\npre_transform = ...  # optional: PyG-like transform during loading\ntransform = ...  # optional: PyG-like transform at computation time" aria-label="Copy setup snippet" title="Copy">
+                  <button class="copy-btn" data-copy="import graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task or list of tasks\npre_filter = ...  # optional: PyTorch Geometric filter matrix\npre_transform = ...  # optional: PyG-like transform during loading\ntransform = ...  # optional: PyG-like transform at computation time" aria-label="Copy setup snippet" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
-<pre><code class="code-manual"><span class="kw">import</span> graphbench-lib <span class="kw">as</span> graphbench
+<pre><code class="code-manual"><span class="kw">import</span> graphbench
 
 <span class="var">model</span> = <span class="com"># your torch model</span>
 <span class="var">dataset_name</span> = <span class="com"># name of the task or list of tasks</span>
@@ -150,10 +150,10 @@ app.innerHTML = renderLayout('quickstart', `
               <p>Run the entire GraphBench workflow with just a few lines.</p>
               <div class="card code-card">
                 <div class="code-wrap">
-                  <button class="copy-btn" data-copy="import graphbench-lib as graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task or list of tasks\npre_filter = ...  # optional: PyTorch Geometric filter matrix\npre_transform = ...  # optional: PyG-like transform during loading\ntransform = ...  # optional: PyG-like transform at computation time\n\n# Setting up the components of GraphBench\nEvaluator = graphbench.Evaluator(dataset_name)\nOptimizer = graphbench.Optimizer(optimization_args, training_method)\nLoader = graphbench.Loader(dataset_name, pre_filter, pre_transform, transform)\n\n# Load a GraphBench dataset and get splits\ndataset = Loader.load()\n\n# Optimize your model\nopt_model = Optimizer.optimize()\n\n# Use GraphBench evaluator with targets y_true and predictions y_pred\nresults = Evaluator.evaluate(y_true, y_pred)" aria-label="Copy full example" title="Copy">
+                  <button class="copy-btn" data-copy="import graphbench\n\nmodel = ...  # your torch model\ndataset_name = ...  # name of the task or list of tasks\npre_filter = ...  # optional: PyTorch Geometric filter matrix\npre_transform = ...  # optional: PyG-like transform during loading\ntransform = ...  # optional: PyG-like transform at computation time\n\n# Setting up the components of GraphBench\nEvaluator = graphbench.Evaluator(dataset_name)\nOptimizer = graphbench.Optimizer(optimization_args, training_method)\nLoader = graphbench.Loader(dataset_name, pre_filter, pre_transform, transform)\n\n# Load a GraphBench dataset and get splits\ndataset = Loader.load()\n\n# Optimize your model\nopt_model = Optimizer.optimize()\n\n# Use GraphBench evaluator with targets y_true and predictions y_pred\nresults = Evaluator.evaluate(y_true, y_pred)" aria-label="Copy full example" title="Copy">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                   </button>
-<pre><code class="code-manual"><span class="kw">import</span> graphbench-lib <span class="kw">as</span> graphbench
+<pre><code class="code-manual"><span class="kw">import</span> graphbench
 
 <span class="var">model</span> = <span class="com"># your torch model</span>
 <span class="var">dataset_name</span> = <span class="com"># name of the task or list of tasks</span>
