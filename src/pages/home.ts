@@ -123,6 +123,23 @@ app.innerHTML = renderLayout('home', `
     </div>
     </div>
   </section>
+  
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <a href="./" class="footer-brand" aria-label="GraphBench home">
+        <img src="./GraphBench_logo_icon.png" alt="" aria-hidden="true" />
+        <span>GraphBench</span>
+      </a>
+      <div class="footer-links">
+        <a href="https://arxiv.org/abs/2512.04475" target="_blank" rel="noopener noreferrer" aria-label="Paper" class="footer-link">
+          <img src="./paper.svg" alt="" aria-hidden="true" />
+        </a>
+        <a href="https://github.com/graphbench/package" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="footer-link">
+          <img src="./github.svg" alt="" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </footer>
 `, 'home-main')
 
 document.body.classList.remove('no-body-scroll')
@@ -330,9 +347,11 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       { id: 'weather', name: 'Weather Forecasting', hasResolution: true },
     ]
 
+    // Sub-datasets correspond to concrete dataset_name values in the library.
+    // These mirror the trees shown in the "Get Started" dataset overview.
     const subsetsByDataset: Record<string, string[]> = {
-      social: ['quotes', 'replies', 'reposts'],
-      chip: ['chipdesign'],
+      social: ['bluesky_quotes', 'bluesky_replies', 'bluesky_retweets'],
+      chip: [],
       circuits: [
         'electronic_circuits_5_eff',
         'electronic_circuits_5_vout',
@@ -343,20 +362,74 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       ],
       sat: [
         'sat_lcg_as',
-        'sat_vcg_as',
-        'sat_vg_as',
         'sat_lcg_epm',
+        'sat_vcg_as',
         'sat_vcg_epm',
+        'sat_vg_as',
         'sat_vg_epm',
       ],
-      co: ['rb_small', 'rb_large', 'er_small', 'er_large', 'ba_small', 'ba_large'],
-      ar: ['bipartitematching', 'topologicalsorting', 'mst', 'steinertree', 'bridges', 'maxclique', 'flow'],
-      weather: ['weather_64'],
+      co: [
+        'co_ba_large',
+        'co_ba_small',
+        'co_er_large',
+        'co_er_small',
+        'co_rb_large',
+        'co_rb_small',
+      ],
+      // Weather behaves like chipdesign: no explicit sub-datasets in the UI,
+      // use the grouped name "weather" directly in generated code.
+      weather: [],
+    }
+
+    // For Algorithmic Reasoning, we have nested groups: difficulty groups contain sub-datasets.
+    const arDifficultyGroups: Record<string, string[]> = {
+      algorithmic_reasoning_easy: [
+        'bipartitematching_easy',
+        'bridges_easy',
+        'mst_easy',
+        'steinertree_easy',
+        'maxclique_easy',
+        'flow_easy',
+        'topologicalorder_easy',
+      ],
+      algorithmic_reasoning_medium: [
+        'bipartitematching_medium',
+        'bridges_medium',
+        'mst_medium',
+        'steinertree_medium',
+        'maxclique_medium',
+        'flow_medium',
+        'topologicalorder_medium',
+      ],
+      algorithmic_reasoning_hard: [
+        'bipartitematching_hard',
+        'bridges_hard',
+        'mst_hard',
+        'steinertree_hard',
+        'maxclique_hard',
+        'flow_hard',
+        'topologicalorder_hard',
+      ],
+    }
+
+    // Group-level dataset names for each domain. When all sub-datasets of a domain
+    // are selected, we collapse to these names in the generated code.
+    const groupDatasetNames: Record<string, string[]> = {
+      social: ['socialnetwork'],
+      chip: ['chipdesign'],
+      circuits: ['electronic_circuits'],
+      sat: ['sat'],
+      co: ['co'],
+      weather: ['weather'],
     }
 
     const selectedIds = new Set<string>()
     const selectedSubsets = Object.fromEntries(Object.keys(subsetsByDataset).map(id => [id, new Set<string>()])) as Record<string, Set<string>>
+    // For AR: track selected difficulty groups and their sub-datasets
+    const selectedArGroups = new Set<string>()
+    const selectedArSubsets = Object.fromEntries(Object.keys(arDifficultyGroups).map(group => [group, new Set<string>()])) as Record<string, Set<string>>
     const expandedIds = new Set<string>()
+    const expandedArGroups = new Set<string>()
 
     const iconFor = (id: string): string => {
       switch (id) {
@@ -401,13 +474,55 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       return `<div class="side-sub">${rows}</div>`
     }
 
+    // Special rendering for Algorithmic Reasoning nested structure
+    const arMarkup = (): string => {
+      const parentSelected = selectedIds.has('ar')
+      const chev = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>'
+      
+      const difficultyGroups = Object.keys(arDifficultyGroups)
+      const groupRows = difficultyGroups.map(groupName => {
+        const groupSelected = parentSelected && selectedArGroups.has(groupName)
+        const isExpanded = expandedArGroups.has(groupName)
+        const subs = arDifficultyGroups[groupName] || []
+        const sel = selectedArSubsets[groupName] || new Set<string>()
+        
+        const subRows = subs.map(sub => {
+          const checked = groupSelected && sel.has(sub) ? 'checked' : ''
+          const safeId = `ar_sub_${groupName}_${sub}`.replace(/[^a-zA-Z0-9_-]/g, '-')
+          return `<div class="sub-row sub-row-nested">
+            <input id="${safeId}" type="checkbox" data-ar-group="${groupName}" data-ar-sub="${sub}" ${checked}/>
+            <label class="sub-name" for="${safeId}">
+              <span class="sub-text">${sub}</span>
+            </label>
+          </div>`
+        }).join('')
+        
+        return `
+          <div class="ar-group-item" data-ar-group="${groupName}">
+            <div class="side-row ds-main ar-group-row" data-ar-group-row>
+              <label class="side-check"><input type="checkbox" data-ar-group-select="${groupName}" ${groupSelected ? 'checked' : ''}/></label>
+              <span class="ds-name">${groupName}</span>
+              <button class="ds-disclose" data-ar-group-toggle="${groupName}" aria-expanded="${isExpanded}" aria-label="Toggle ${groupName} options">${chev}</button>
+            </div>
+            <div class="ds-subwrap" data-open="${isExpanded}">
+              <div class="ds-sub">
+                <div class="side-sub">${subRows}</div>
+              </div>
+            </div>
+          </div>`
+      }).join('')
+      
+      return `<div class="side-sub ar-groups">${groupRows}</div>`
+    }
+
     const render = () => {
       const chev = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>'
       const dsRows = items.map(r => {
         const checked = selectedIds.has(r.id)
         const isExpanded = expandedIds.has(r.id)
-        const hasDrop = (subsetsByDataset[r.id] || []).length > 0
-        const sub = hasDrop ? subRowsMarkupFor(r.id) : ''
+        const isAr = r.id === 'ar'
+        const hasDrop = isAr || (subsetsByDataset[r.id] || []).length > 0
+        const sub = isAr ? arMarkup() : (hasDrop ? subRowsMarkupFor(r.id) : '')
         return `
           <div class="ds-item" data-ds="${r.id}">
             <div class="side-row ds-main" data-dsrow>
@@ -445,13 +560,71 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         </div>`
     }
 
-    const selectedSubsetNames = (): string[] => {
+    // Compute the dataset_name values to emit, applying the grouping rules:
+    // - If all sub-datasets for a domain are selected, emit the group name(s) only.
+    // - If only some sub-datasets are selected, emit those individual names.
+    // - For Algorithmic Reasoning, handle nested groups: difficulty groups contain sub-datasets.
+    const selectedDatasetNames = (): string[] => {
+      const result: string[] = []
       const ids = Array.from(selectedIds.values())
-      return ids.flatMap(id => Array.from(selectedSubsets[id] || []))
+
+      ids.forEach(id => {
+        // Special handling for Algorithmic Reasoning
+        if (id === 'ar') {
+          const difficultyGroups = Object.keys(arDifficultyGroups)
+          difficultyGroups.forEach(groupName => {
+            if (!selectedArGroups.has(groupName)) return
+            
+            const subs = arDifficultyGroups[groupName] || []
+            const selected = selectedArSubsets[groupName] || new Set<string>()
+            const allSelected = subs.every(s => selected.has(s))
+            
+            if (allSelected) {
+              // All sub-datasets of this difficulty group selected → use group name
+              result.push(groupName)
+            } else {
+              // Partial selection → emit only the selected sub-dataset names
+              result.push(...subs.filter(s => selected.has(s)))
+            }
+          })
+          return
+        }
+
+        // Regular domains
+        const subs = subsetsByDataset[id] || []
+        const selected = selectedSubsets[id] || new Set<string>()
+        const groupNames = groupDatasetNames[id] || []
+
+        // Domains without explicit sub-datasets: always use their group name(s).
+        if (subs.length === 0) {
+          if (groupNames.length) {
+            result.push(...groupNames)
+          } else {
+            result.push(id)
+          }
+          return
+        }
+
+        const allSelected = subs.every(s => selected.has(s))
+
+        if (allSelected) {
+          // All sub-datasets selected → collapse to group-level dataset names.
+          if (groupNames.length) {
+            result.push(...groupNames)
+          } else {
+            result.push(...subs)
+          }
+        } else {
+          // Partial selection → emit only the selected sub-dataset names.
+          result.push(...subs.filter(s => selected.has(s)))
+        }
+      })
+
+      return result
     }
 
     const genPlainCode = (): string => {
-      const names = selectedSubsetNames()
+      const names = selectedDatasetNames()
       const hasSelection = names.length > 0
       const useList = names.length > 1
       const optPF = !!(document.getElementById('opt-pre-filter') as HTMLInputElement | null)?.checked
@@ -539,13 +712,40 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         const open = expandedIds.has(id)
         if (subwrap) subwrap.setAttribute('data-open', open ? 'true' : 'false')
         if (toggleBtn) toggleBtn.setAttribute('aria-expanded', open.toString())
-        const inputs = item.querySelectorAll('input[data-sub]') as NodeListOf<HTMLInputElement>
-        const parentSelected = selectedIds.has(id)
-        const sel = selectedSubsets[id] || new Set<string>()
-        inputs.forEach(inp => {
-          const sub = inp.getAttribute('data-sub') || ''
-          inp.checked = parentSelected && sel.has(sub)
-        })
+        
+        // Handle AR nested groups
+        if (id === 'ar') {
+          const arGroups = item.querySelectorAll('.ar-group-item') as NodeListOf<HTMLElement>
+          arGroups.forEach(groupItem => {
+            const groupName = groupItem.getAttribute('data-ar-group') || ''
+            const groupSubwrap = groupItem.querySelector('.ds-subwrap') as HTMLElement | null
+            const groupToggleBtn = groupItem.querySelector('[data-ar-group-toggle]') as HTMLButtonElement | null
+            const groupOpen = expandedArGroups.has(groupName)
+            if (groupSubwrap) groupSubwrap.setAttribute('data-open', groupOpen ? 'true' : 'false')
+            if (groupToggleBtn) groupToggleBtn.setAttribute('aria-expanded', groupOpen.toString())
+            
+            const groupSelected = selectedIds.has('ar') && selectedArGroups.has(groupName)
+            const groupCheckbox = groupItem.querySelector(`input[data-ar-group-select="${groupName}"]`) as HTMLInputElement | null
+            if (groupCheckbox) groupCheckbox.checked = groupSelected
+            
+            const sel = selectedArSubsets[groupName] || new Set<string>()
+            const subInputs = groupItem.querySelectorAll('input[data-ar-sub]') as NodeListOf<HTMLInputElement>
+            subInputs.forEach(inp => {
+              const sub = inp.getAttribute('data-ar-sub') || ''
+              inp.checked = groupSelected && sel.has(sub)
+            })
+          })
+        } else {
+          // Regular domains
+          const inputs = item.querySelectorAll('input[data-sub]') as NodeListOf<HTMLInputElement>
+          const parentSelected = selectedIds.has(id)
+          const sel = selectedSubsets[id] || new Set<string>()
+          inputs.forEach(inp => {
+            const sub = inp.getAttribute('data-sub') || ''
+            inp.checked = parentSelected && sel.has(sub)
+          })
+        }
+        
         const main = item.querySelector('input[data-select]') as HTMLInputElement | null
         if (main && main.getAttribute('data-select') === id) {
           main.checked = selectedIds.has(id)
@@ -559,7 +759,33 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
       const dsId = t.getAttribute('data-select')
       const subDsId = t.getAttribute('data-sub-ds')
       const subValue = t.getAttribute('data-sub')
+      const arGroupSelect = t.getAttribute('data-ar-group-select')
+      const arGroup = t.getAttribute('data-ar-group')
+      const arSub = t.getAttribute('data-ar-sub')
       const idAttr = t.getAttribute('id')
+      
+      // Handle AR domain selection
+      if (dsId === 'ar') {
+        if (t.checked) {
+          selectedIds.add('ar')
+          // Select all difficulty groups and all their sub-datasets
+          Object.keys(arDifficultyGroups).forEach(groupName => {
+            selectedArGroups.add(groupName)
+            selectedArSubsets[groupName] = new Set<string>(arDifficultyGroups[groupName] || [])
+          })
+          expandedIds.clear(); expandedIds.add('ar')
+        } else {
+          selectedIds.delete('ar')
+          selectedArGroups.clear()
+          Object.keys(arDifficultyGroups).forEach(groupName => {
+            selectedArSubsets[groupName].clear()
+          })
+          expandedIds.delete('ar')
+        }
+        syncDisclosureUI(); update(); return
+      }
+      
+      // Handle regular domain selection
       if (dsId) {
         if (t.checked) {
           selectedIds.add(dsId)
@@ -572,6 +798,51 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         }
         syncDisclosureUI(); update(); return
       }
+      
+      // Handle AR difficulty group selection
+      if (arGroupSelect) {
+        if (t.checked) {
+          selectedArGroups.add(arGroupSelect)
+          selectedIds.add('ar')
+          // Select all sub-datasets of this difficulty group
+          selectedArSubsets[arGroupSelect] = new Set<string>(arDifficultyGroups[arGroupSelect] || [])
+          expandedArGroups.add(arGroupSelect)
+        } else {
+          selectedArGroups.delete(arGroupSelect)
+          selectedArSubsets[arGroupSelect].clear()
+          // If no groups selected, deselect AR domain
+          if (selectedArGroups.size === 0) {
+            selectedIds.delete('ar')
+          }
+          expandedArGroups.delete(arGroupSelect)
+        }
+        syncDisclosureUI(); update(); return
+      }
+      
+      // Handle AR sub-dataset selection
+      if (arGroup && arSub) {
+        const set = selectedArSubsets[arGroup] || new Set<string>()
+        if (t.checked) {
+          set.add(arSub)
+          selectedArGroups.add(arGroup)
+          selectedIds.add('ar')
+        } else {
+          set.delete(arSub)
+          // If no sub-datasets selected for this group, deselect the group
+          if (set.size === 0) {
+            selectedArGroups.delete(arGroup)
+            // If no groups selected, deselect AR domain
+            if (selectedArGroups.size === 0) {
+              selectedIds.delete('ar')
+            }
+          }
+        }
+        selectedArSubsets[arGroup] = set
+        expandedArGroups.add(arGroup)
+        syncDisclosureUI(); update(); return
+      }
+      
+      // Handle regular sub-dataset selection
       if (subDsId && subValue) {
         const set = selectedSubsets[subDsId] || new Set<string>()
         if (t.checked) {
@@ -587,6 +858,7 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         expandedIds.add(subDsId)
         syncDisclosureUI(); update(); return
       }
+      
       if (idAttr === 'opt-pre-filter' || idAttr === 'opt-pre-transform' || idAttr === 'opt-transform') { update(); return }
     })
 
@@ -607,6 +879,13 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
         }
         return
       }
+      const arGroupToggle = btn.getAttribute('data-ar-group-toggle')
+      if (arGroupToggle) {
+        const willOpen = !expandedArGroups.has(arGroupToggle)
+        if (willOpen) { expandedArGroups.add(arGroupToggle) } else { expandedArGroups.delete(arGroupToggle) }
+        syncDisclosureUI();
+        return
+      }
       const dsToggle = btn.getAttribute('data-ds-toggle')
       if (dsToggle) {
         const willOpen = !expandedIds.has(dsToggle)
@@ -617,6 +896,20 @@ window.addEventListener('resize', syncHeroLock, { passive: true })
     })
 
     mount.addEventListener('click', (e) => {
+      const arGroupRow = (e.target as HTMLElement).closest('.side-row[data-ar-group-row]') as HTMLElement | null
+      if (arGroupRow) {
+        const isCheckbox = (e.target as HTMLElement).closest('input[type="checkbox"]')
+        const isDiscloseBtn = (e.target as HTMLElement).closest('[data-ar-group-toggle]')
+        if (isCheckbox || isDiscloseBtn) return
+        const groupItem = arGroupRow.closest('.ar-group-item') as HTMLElement | null
+        const groupName = groupItem?.getAttribute('data-ar-group') || ''
+        if (!groupName) return
+        const willOpen = !expandedArGroups.has(groupName)
+        if (willOpen) { expandedArGroups.add(groupName) } else { expandedArGroups.delete(groupName) }
+        syncDisclosureUI()
+        return
+      }
+      
       const row = (e.target as HTMLElement).closest('.side-row[data-dsrow]') as HTMLElement | null
       if (!row) return
       const isCheckbox = (e.target as HTMLElement).closest('input[type="checkbox"]')

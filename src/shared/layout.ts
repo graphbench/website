@@ -39,6 +39,25 @@ export function renderLayout(active: PageKey, mainHtml: string, mainClass?: stri
     return `<a href="${l.href}" ${l.key === active ? 'aria-current="page"' : ''}>${l.label}</a>`
   }).join('')
 
+  const footerHtml = active !== 'home' ? `
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <a href="./" class="footer-brand" aria-label="GraphBench home">
+        <img src="./GraphBench_logo_icon.png" alt="" aria-hidden="true" />
+        <span>GraphBench</span>
+      </a>
+      <div class="footer-links">
+        <a href="https://arxiv.org/abs/2512.04475" target="_blank" rel="noopener noreferrer" aria-label="Paper" class="footer-link">
+          <img src="./paper.svg" alt="" aria-hidden="true" />
+        </a>
+        <a href="https://github.com/graphbench/package" target="_blank" rel="noopener noreferrer" aria-label="GitHub" class="footer-link">
+          <img src="./github.svg" alt="" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </footer>
+  ` : ''
+
   return `
   <header id="site-header" class="${active !== 'home' ? 'header-elevated' : 'header-on-hero'}">
     <div class="container nav" role="navigation" aria-label="Primary">
@@ -75,6 +94,7 @@ export function renderLayout(active: PageKey, mainHtml: string, mainClass?: stri
     </div>
   </div>
   <main id="main" ${mainClass ? `class="${mainClass}"` : ''}>${mainHtml}</main>
+  ${footerHtml}
   `
 }
 

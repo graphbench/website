@@ -17,7 +17,7 @@ const dsStats: Record<string, { graphs: string; nodes: string; edges: string; si
   social: { graphs: '3', nodes: '286K – 580K', edges: '3M – 17M', size: '3.5GB' },
   chip: { graphs: '1.2M', nodes: '23 – 335', edges: '33 – 652', size: '4GB' },
   circuits: { graphs: '93,000', nodes: '13 – 24', edges: '30 – 56', size: '25MB' },
-  sat: { graphs: '208,788', nodes: '', edges: '', size: '16GB' },
+  sat: { graphs: '208,788', nodes: '2 – 20,799', edges: '2 – 4,109,936', size: '16GB' },
   co: { graphs: '300,000', nodes: '200 – 1,200', edges: '792 – 187,600', size: '176.8GB' },
   ar: { graphs: '21M', nodes: '16 – 512', edges: '15 – 7,319', size: '85GB' },
   weather: { graphs: '93,544', nodes: '4,610', edges: '7,928', size: '60.6GB' },
@@ -474,8 +474,8 @@ enhanceInteractions()
 
     const targetSection = createSection(
       'Target',
-      'Prediction for all weather variables across all pressure levels.',
-      'data.y',
+      'Prediction of <code>data.x</code> at timestep <code>t+i</code>, where <code>t</code> is the input timestep and <code>i</code> is the prediction horizon.',
+      'data.x[t+i]',
       '[num_nodes, 83]'
     )
 
