@@ -16,7 +16,7 @@ const items: Ds[] = [
 const dsStats: Record<string, { graphs: string; nodes: string; edges: string; size: string }> = {
   social: { graphs: '3', nodes: '286K – 580K', edges: '3M – 17M', size: '3.5GB' },
   chip: { graphs: '1.2M', nodes: '23 – 335', edges: '33 – 652', size: '4GB' },
-  circuits: { graphs: '93,000', nodes: '13 – 24', edges: '30 – 56', size: '25MB' },
+  circuits: { graphs: '352,760', nodes: '13 – 24', edges: '30 – 56', size: '25MB' },
   sat: { graphs: '208,788', nodes: '2 – 20,799', edges: '2 – 4,109,936', size: '16GB' },
   co: { graphs: '300,000', nodes: '200 – 1,200', edges: '792 – 187,600', size: '176.8GB' },
   ar: { graphs: '21M', nodes: '16 – 512', edges: '15 – 7,319', size: '85GB' },
