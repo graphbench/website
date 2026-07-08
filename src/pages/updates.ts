@@ -36,7 +36,7 @@ type UpdateItem = { date: string; version: string; text: string }
         <div class="update-head">
           <h3 class="update-title"><span class="date">${u.date}</span><span class="version-tag ${vClass}" aria-label="Version">${u.version}</span></h3>
         </div>
-        <div class="update-body">${u.text}</div>
+        <div class="update-body prose">${u.text}</div>
       </div>`
       }).join('')
       mount.innerHTML = html

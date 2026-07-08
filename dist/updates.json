@@ -1,5 +1,10 @@
 [
   {
+    "date": "2026-07-06",
+    "version": "2.0.0",
+    "text": "<p>We are happy to present a large new update to GraphBench.</p><p>We have refreshed several datasets and baseline results across multiple tasks to reflect the latest benchmark configurations.</p><p>We also launch the official <a class=\"accent-link\" href=\"https://graphbench.github.io/package/\" target=\"_blank\" rel=\"noopener\">Documentation</a> with usage guides, dataset overviews, and API references.</p>"
+  },
+  {
     "date": "2025-12-04",
     "version": "1.0.0",
     "text": "Initial GraphBench release."
